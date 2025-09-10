@@ -1,10 +1,9 @@
 import { ProviderType, RoleType, UserProvider } from 'src/interfaces';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { IUserRepository } from 'src/users/interfaces';
+import { DbUser, IUserRepository } from 'src/users/interfaces';
 import { UserEntity } from '../entities/user.entity';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-type DbUser = Prisma.UserGetPayload<{}>
+
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
