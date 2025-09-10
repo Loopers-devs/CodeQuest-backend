@@ -3,7 +3,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { UsersService } from 'src/users/users.service';
-import { LoginGoogleDto } from './dto/login-google.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import { envs } from 'src/config/envs.config';
 import { RegisterDto } from './dto/register.dto';
 
@@ -63,7 +63,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async google(user: LoginGoogleDto) {
+  async socialLogin(user: SocialLoginDto) {
     const existingUser = await this.userService.findByEmail(user.email);
 
     if (existingUser) {
@@ -77,7 +77,7 @@ export class AuthService {
         fullName: user.fullName,
         password: null,
       },
-      'GOOGLE',
+      user.provider,
     );
 
     const payload = { email: newUser.email, sub: newUser.id };
