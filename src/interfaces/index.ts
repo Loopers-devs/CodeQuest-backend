@@ -25,6 +25,32 @@ export interface GoogleProfile {
   };
 }
 
+export interface DiscordProfile {
+  id: string;
+  username: string;
+  avatar: string | null;
+  discriminator: string;
+  public_flags: number;
+  flags: number;
+  banner: string | null;
+  accent_color: number | null;
+  global_name: string;
+  avatar_decoration_data: Record<string, unknown> | null;
+  collectibles: unknown[] | null;
+  display_name_styles: string[] | null;
+  banner_color: string | null;
+  clan: string | null;
+  primary_guild: string | null;
+  mfa_enabled: boolean;
+  locale: string;
+  premium_type: number;
+  email: string;
+  verified: boolean;
+  provider: string;
+  accessToken: string;
+  fetchedAt: Date;
+}
+
 export enum Role {
   ADMIN = 'ADMIN',
   CUSTOMER = 'CUSTOMER',

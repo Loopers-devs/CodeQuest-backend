@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
-import { LoginGoogleDto } from './dto/login-google.dto';
+import { SocialLoginDto } from './dto/social-login.dto';
 import {
   clearAuthCookies,
   saveAuthCookie,
@@ -20,6 +20,8 @@ import {
 } from 'src/utils/auth-cookie';
 import { envs } from 'src/config/envs.config';
 import { RegisterDto } from './dto/register.dto';
+import { DiscordAuthGuard } from './guard/discord-auth.guard';
+import { DiscordProfile, GoogleProfile } from 'src/interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -97,28 +99,56 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = req.user as {
-      userId: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      picture: string;
-      provider: string;
-    };
+    const user = req.user as unknown as GoogleProfile;
 
     if (!user) {
       throw new UnauthorizedException('No se pudo autenticar al usuario');
     }
 
-    const LoginGoogleDto: LoginGoogleDto = {
-      userId: user.userId,
-      email: user.email,
-      fullName: `${user.firstName} ${user.lastName}`,
-      provider: user.provider,
-      picture: user.picture,
+    const socialLoginDto: SocialLoginDto = {
+      userId: user.id,
+      nickname: user.name.givenName,
+      email: user.emails[0].value,
+      fullName: user.displayName,
+      picture: user.photos[0]?.value || null,
+      provider: 'GOOGLE',
     };
 
-    const accessToken = await this.authService.google(LoginGoogleDto);
+    const accessToken = await this.authService.socialLogin(socialLoginDto);
+    const refreshToken = this.authService.generateRefreshToken({
+      email: user.emails[0].value,
+    });
+
+    await saveAuthCookie(res, accessToken, refreshToken);
+
+    return res.redirect(envs.urlFrontend);
+  }
+
+  @Get('discord')
+  @UseGuards(DiscordAuthGuard)
+  async discordAuth() {}
+
+  @Get('discord/callback')
+  @UseGuards(DiscordAuthGuard)
+  async discordAuthRedirect(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const user = req.user as unknown as DiscordProfile;
+
+    if (!user) {
+      throw new UnauthorizedException('No se pudo autenticar al usuario');
+    }
+
+    const accessToken = await this.authService.socialLogin({
+      userId: user.id,
+      email: user.email,
+      fullName: user.global_name,
+      picture: user.avatar,
+      provider: 'DISCORD',
+      nickname: user.username,
+    });
+
     const refreshToken = this.authService.generateRefreshToken({
       email: user.email,
     });

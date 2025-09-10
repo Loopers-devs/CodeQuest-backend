@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { GoogleStrategy } from './strategy/google.strategy';
 import { UsersModule } from 'src/users/users.module';
 import { envs } from 'src/config/envs.config';
+import { DiscordStrategy } from './strategy/discord.stratey';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { envs } from 'src/config/envs.config';
       signOptions: { expiresIn: envs.jwtExpiresIn },
     }),
   ],
-  providers: [AuthService, JwtStrategy, GoogleStrategy],
+  providers: [AuthService, JwtStrategy, GoogleStrategy, DiscordStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}
