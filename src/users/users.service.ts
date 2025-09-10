@@ -3,7 +3,7 @@ import * as bcryptjs from 'bcryptjs';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { Provider, ProviderType } from 'src/interfaces';
+import { UserProvider, ProviderType } from 'src/interfaces';
 import { IUserRepository } from './interfaces';
 
 @Injectable()
@@ -23,11 +23,12 @@ export class UsersService {
       throw new BadRequestException('Usuario ya registrado');
     }
 
-    const providerType = provider || Provider.LOCAL;
+    const providerType = provider || UserProvider.CREDENTIALS;
 
     const newUser = await this.userRepository.create(
       {
         ...createUserDto,
+        nickname: null,
         password: createUserDto.password
           ? await bcryptjs.hash(createUserDto.password, 10)
           : null,

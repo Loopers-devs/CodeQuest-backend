@@ -24,9 +24,6 @@ const envVarsSchema = Joi.object({
     .required()
     .description('Database connection string'),
   JWT_EXPIRES_IN: Joi.string().default('1d').description('JWT expiration time'),
-  MONGOOSE_URL: Joi.string()
-    .required()
-    .description('Mongoose connection string'),
   NODE_ENV: Joi.string()
     .valid('development', 'production', 'test')
     .default('development')
@@ -62,7 +59,6 @@ export const envs = {
   jwtSecret: envVars.JWT_SECRET,
   databaseUrl: envVars.DATABASE_URL,
   jwtExpiresIn: envVars.JWT_EXPIRES_IN,
-  mongooseUrl: envVars.MONGOOSE_URL,
   nodeEnv: envVars.NODE_ENV || 'development',
   jwtRefreshSecret: envVars.JWT_REFRESH_SECRET,
   jwtRefreshExpiresIn: envVars.JWT_REFRESH_EXPIRES_IN,

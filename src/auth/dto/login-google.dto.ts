@@ -8,7 +8,7 @@ export class LoginGoogleDto {
   email: string;
 
   @IsString()
-  name: string;
+  fullName: string;
 
   @IsString()
   picture: string;

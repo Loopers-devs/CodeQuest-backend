@@ -53,10 +53,10 @@ export class AuthService {
     const newUser = await this.userService.create(
       {
         email: registerDto.email,
-        name: registerDto.name,
+        fullName: registerDto.fullName,
         password: registerDto.password,
       },
-      'LOCAL',
+      'CREDENTIALS',
     );
 
     const payload = { email: newUser.email, sub: newUser.id };
@@ -74,7 +74,7 @@ export class AuthService {
     const newUser = await this.userService.create(
       {
         email: user.email,
-        name: user.name,
+        fullName: user.fullName,
         password: null,
       },
       'GOOGLE',

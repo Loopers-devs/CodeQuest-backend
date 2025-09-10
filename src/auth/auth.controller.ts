@@ -113,7 +113,7 @@ export class AuthController {
     const LoginGoogleDto: LoginGoogleDto = {
       userId: user.userId,
       email: user.email,
-      name: `${user.firstName} ${user.lastName}`,
+      fullName: `${user.firstName} ${user.lastName}`,
       provider: user.provider,
       picture: user.picture,
     };

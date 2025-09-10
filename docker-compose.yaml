@@ -10,8 +10,8 @@ services:
     # No se expone el puerto, solo accesible desde la red interna
     volumes:
       - db_data:/var/lib/postgresql/data # Volumen para persistir los datos de la base de datos
-    networks:
-      - internal
+    ports:
+      - "5432:5432"
   pgAdmin:
     container_name: pgadmin # Nombre del contenedor
     image: dpage/pgadmin4:latest # Imagen de pgAdmin
@@ -21,12 +21,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD} # Contraseña por defecto
     ports:
       - "5050:80"
-    networks:
-      - internal
 
 volumes:
   db_data:
-
-networks:
-  internal:
-    driver: bridge

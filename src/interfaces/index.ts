@@ -25,18 +25,19 @@ export interface GoogleProfile {
   };
 }
 
-export enum Provider {
-  GOOGLE = 'GOOGLE',
-  LOCAL = 'LOCAL',
-}
-
 export enum Role {
   ADMIN = 'ADMIN',
   CUSTOMER = 'CUSTOMER',
 }
 
-export type ProviderType = keyof typeof Provider;
+export enum UserProvider {
+  CREDENTIALS = 'CREDENTIALS',
+  GOOGLE = 'GOOGLE',
+  DISCORD = 'DISCORD',
+}
+
 export type RoleType = `${Role}`;
+export type ProviderType = `${UserProvider}`;
 
 export interface Hasher {
   hash(data: string, saltRounds?: number): string;
