@@ -1,16 +1,32 @@
-version: '3.8'
-
 services:
-  mongo:
-    image: mongo:7
-    container_name: mongo-local
-    ports:
-      - '27017:27017'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin123
+  postgres:
+    container_name: postgres # Nombre del contenedor
+    image: postgres:17.6-alpine3.22 # Imagen de Postgres que se usará
+    restart: always # Reinicia el contenedor automáticamente si falla
+    environment: # Variables de entorno para configurar Postgres
+      POSTGRES_USER: ${POSTGRES_USER} # Usuario de la base de datos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Contraseña del usuario
+      POSTGRES_DB: ${POSTGRES_DB} # Nombre de la base de datos
+    # No se expone el puerto, solo accesible desde la red interna
     volumes:
-      - mongo-data:/data/db
+      - db_data:/var/lib/postgresql/data # Volumen para persistir los datos de la base de datos
+    networks:
+      - internal
+  pgAdmin:
+    container_name: pgadmin # Nombre del contenedor
+    image: dpage/pgadmin4:latest # Imagen de pgAdmin
+    restart: always # Reinicia el contenedor automáticamente si falla
+    environment: # Variables de entorno para configurar pgAdmin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL} # Correo electrónico por defecto
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD} # Contraseña por defecto
+    ports:
+      - "5050:80"
+    networks:
+      - internal
 
 volumes:
-  mongo-data:
+  db_data:
+
+networks:
+  internal:
+    driver: bridge
