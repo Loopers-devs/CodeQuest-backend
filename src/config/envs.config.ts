@@ -14,6 +14,9 @@ interface EnvVars {
   GOOGLE_REDIRECT_URI: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
+  DISCORD_CLIENT_ID: string;
+  DISCORD_CLIENT_SECRET: string;
+  DISCORD_REDIRECT_URI: string;
   NODE_ENV?: NodeEnv;
 }
 
@@ -44,6 +47,16 @@ const envVarsSchema = Joi.object({
   GOOGLE_CLIENT_SECRET: Joi.string()
     .required()
     .description('Google OAuth client secret'),
+  DISCORD_CLIENT_ID: Joi.string()
+    .required()
+    .description('Discord OAuth client ID'),
+  DISCORD_CLIENT_SECRET: Joi.string()
+    .required()
+    .description('Discord OAuth client secret'),
+  DISCORD_REDIRECT_URI: Joi.string()
+    .uri()
+    .required()
+    .description('Discord OAuth redirect URI'),
 }).unknown(true);
 
 const validatedEnvVars = envVarsSchema.validate(process.env);
@@ -66,4 +79,7 @@ export const envs = {
   googleRedirectUri: envVars.GOOGLE_REDIRECT_URI,
   googleClientId: envVars.GOOGLE_CLIENT_ID,
   googleClientSecret: envVars.GOOGLE_CLIENT_SECRET,
+  discordClientId: envVars.DISCORD_CLIENT_ID,
+  discordClientSecret: envVars.DISCORD_CLIENT_SECRET,
+  discordRedirectUri: envVars.DISCORD_REDIRECT_URI,
 };

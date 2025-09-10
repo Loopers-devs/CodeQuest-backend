@@ -67,6 +67,10 @@ export class AuthService {
     const existingUser = await this.userService.findByEmail(user.email);
 
     if (existingUser) {
+      if (existingUser.provider !== user.provider) {
+        throw new UnauthorizedException('Cuenta registrada con otro proveedor');
+      }
+
       const payload = { email: existingUser.email, sub: existingUser.id };
       return this.jwtService.sign(payload);
     }

@@ -101,8 +101,6 @@ export class AuthController {
   ) {
     const user = req.user as unknown as GoogleProfile;
 
-    console.log(user);
-
     if (!user) {
       throw new UnauthorizedException('No se pudo autenticar al usuario');
     }
