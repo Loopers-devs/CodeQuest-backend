@@ -17,25 +17,7 @@ export class PrismaUserRepository implements IUserRepository {
 
     if (!user) return null;
 
-    return {
-      id: user.id,
-      fullName: user.fullName,
-      nickname: user.nickname,
-      email: user.email,
-      password: user.password || null,
-      roles: user.roles as Array<RoleType>,
-      image: user.image || null,
-      emailVerified: user.emailVerified || null,
-      emailVerificationToken: user.emailVerificationToken || null,
-      emailVerificationExpiry: user.emailVerificationExpiry || null,
-      passwordResetToken: user.passwordResetToken || null,
-      passwordResetTokenExpiry: user.passwordResetTokenExpiry || null,
-      provider: user.providerType as UserProvider,
-      providerAccountId: user.providerAccountId || null,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      deletedAt: user.deletedAt || null,
-    };
+    return this.toEntity(user);
   }
 
   async findById(id: number) {
@@ -45,25 +27,7 @@ export class PrismaUserRepository implements IUserRepository {
 
     if (!user) return null;
 
-    return {
-      id: user.id,
-      fullName: user.fullName,
-      nickname: user.nickname,
-      email: user.email,
-      password: user.password || null,
-      roles: user.roles as Array<RoleType>,
-      image: user.image || null,
-      emailVerified: user.emailVerified || null,
-      emailVerificationToken: user.emailVerificationToken || null,
-      emailVerificationExpiry: user.emailVerificationExpiry || null,
-      passwordResetToken: user.passwordResetToken || null,
-      passwordResetTokenExpiry: user.passwordResetTokenExpiry || null,
-      provider: user.providerType as UserProvider,
-      providerAccountId: user.providerAccountId || null,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      deletedAt: user.deletedAt || null,
-    };
+    return this.toEntity(user);
   }
 
   async create(
