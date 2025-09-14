@@ -24,6 +24,7 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   // ---------- Crear ----------
+  
   @Post()
   @Auth()
   async create(@Body() dto: CreatePostDto, @Req() req: Request) {

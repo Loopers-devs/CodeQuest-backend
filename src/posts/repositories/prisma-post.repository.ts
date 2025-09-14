@@ -138,8 +138,7 @@ export class PrismaPostRepository implements IPostRepository {
   }
 
   // =============== Borrado lógico / restauración ===============
-  async softDelete(id: string, _deletedBy?: number): Promise<void> {
-    // Si tienes campo deletedBy en el schema, añádelo aquí.
+  async softDelete(id: string): Promise<void> {
     await this.prisma.post.update({
       where: { id },
       data: { deletedAt: new Date() },
