@@ -11,5 +11,4 @@ export interface IUserRepository {
   ): Promise<UserEntity>;
 }
 
-
-export type DbUser = Prisma.UserGetPayload<{}>
+export type DbUser = Prisma.UserGetPayload<object>;

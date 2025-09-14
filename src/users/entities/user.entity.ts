@@ -32,10 +32,20 @@ export class UserEntity {
 
   roles: Array<RoleType>;
 
+  @ApiProperty({
+    example: 'http://example.com/image.jpg',
+    type: String,
+    nullable: true,
+  })
   @IsOptional()
   @IsUrl()
   image: string | null;
 
+  @ApiProperty({
+    example: '2023-01-01T00:00:00.000Z',
+    type: String,
+    nullable: true,
+  })
   @IsOptional()
   @IsDate()
   emailVerified: Date | null;
@@ -58,6 +68,11 @@ export class UserEntity {
   createdAt: Date;
   updatedAt: Date;
 
+  @ApiProperty({
+    example: '2023-01-01T00:00:00.000Z',
+    type: String,
+    nullable: true,
+  })
   @IsOptional()
   @IsDate()
   deletedAt: Date | null;

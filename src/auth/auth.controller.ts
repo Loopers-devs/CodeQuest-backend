@@ -136,7 +136,7 @@ export class AuthController {
       nickname: user.name.givenName,
       email: user.emails[0].value,
       fullName: user.displayName,
-      picture: user.photos[0]?.value || null,
+      image: user.photos[0]?.value || null,
       provider: 'GOOGLE',
     };
 
@@ -170,7 +170,7 @@ export class AuthController {
       userId: user.id,
       email: user.email,
       fullName: user.global_name,
-      picture: user.avatar,
+      image: user.avatar,
       provider: 'DISCORD',
       nickname: user.username,
     });
