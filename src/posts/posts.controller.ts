@@ -28,7 +28,8 @@ export class PostsController {
   @Post()
   @Auth()
   async create(@Body() dto: CreatePostDto, @Req() req: Request) {
-    const authorId = (req.user as any)?.id; // asegúrate de tener este campo en tu estrategia de auth
+    
+    const authorId = (req.user as any)?.userId; 
     return this.postsService.create(dto, authorId);
   }
 
@@ -40,7 +41,7 @@ export class PostsController {
     @Body() dto: UpdatePostDto,
     @Req() req: Request,
   ) {
-    const currentUserId = (req.user as any)?.id;
+    const currentUserId = (req.user as any)?.userId;
     return this.postsService.update(id, dto, currentUserId);
   }
 
@@ -51,7 +52,7 @@ export class PostsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: Request,
   ) {
-    const currentUserId = (req.user as any)?.id;
+    const currentUserId = (req.user as any)?.userId;
     return this.postsService.publish(id, currentUserId);
   }
 
@@ -61,7 +62,7 @@ export class PostsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: Request,
   ) {
-    const currentUserId = (req.user as any)?.id;
+    const currentUserId = (req.user as any)?.userId;
     return this.postsService.unpublish(id, currentUserId);
   }
 
@@ -72,7 +73,7 @@ export class PostsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: Request,
   ) {
-    const currentUserId = (req.user as any)?.id;
+    const currentUserId = (req.user as any)?.userId;
     await this.postsService.remove(id, currentUserId);
     return { ok: true };
   }
@@ -83,7 +84,7 @@ export class PostsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Req() req: Request,
   ) {
-    const currentUserId = (req.user as any)?.id;
+    const currentUserId = (req.user as any)?.userId;
     return this.postsService.restore(id, currentUserId);
   }
 
@@ -104,6 +105,8 @@ export class PostsController {
   @Get()
   async list(@Query() q: any) {
     // Parseo ligero de query -> PostListParams
+    console.log({query:q.search});
+    
     const params: PostListParams = {
       search: q.search,
       authorId: q.authorId ? Number(q.authorId) : undefined,
