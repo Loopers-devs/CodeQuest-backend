@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { ProviderType, RoleType, UserProvider } from 'src/interfaces';
+import { type ProviderType, RoleType, UserProvider } from 'src/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UserEntity {
