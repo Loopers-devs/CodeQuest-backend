@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { SocialLoginDto } from './dto/social-login.dto';
