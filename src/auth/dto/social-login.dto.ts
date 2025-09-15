@@ -1,24 +1,14 @@
-import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator';
-import { ProviderType, UserProvider } from 'src/interfaces';
+import { PickType } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
+import { UserEntity } from 'src/users/entities/user.entity';
 
-export class SocialLoginDto {
+export class SocialLoginDto extends PickType(UserEntity, [
+  'email',
+  'fullName',
+  'nickname',
+  'image',
+  'provider',
+] as const) {
   @IsString()
   userId: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  fullName: string;
-
-  @IsOptional()
-  @IsString()
-  nickname: string | null;
-
-  @IsOptional()
-  @IsString()
-  picture: string | null;
-
-  @IsEnum(UserProvider)
-  provider: ProviderType;
 }

@@ -1,0 +1,69 @@
+name: ESLint
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    name: Run ESLint and auto-fix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier (format)
+        run: npm run format
+
+      - name: Run ESLint (auto-fix)
+        run: npm run lint
+
+      - name: Commit and push fixes for same-repo PRs or pushes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Only attempt to push when either this is a push event, or a PR from the same repository
+          IS_PUSH=false
+          IS_SAME_REPO_PR=false
+          if [ "${{ github.event_name }}" = "push" ]; then
+            IS_PUSH=true
+          fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            if [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
+              IS_SAME_REPO_PR=true
+            fi
+          fi
+
+          if [ "$IS_PUSH" = true ] || [ "$IS_SAME_REPO_PR" = true ]; then
+            if [ -n "$(git status --porcelain)" ]; then
+              git add -A
+              git commit -m "chore: apply Prettier & ESLint fixes by workflow" || echo "no changes to commit"
+              # For push events, push to the current ref; for PRs, push to the PR branch
+              if [ "$IS_PUSH" = true ]; then
+                git push origin HEAD:${{ github.ref_name }}
+              else
+                # PR from same repo: push to the PR head ref
+                git push origin HEAD:${{ github.event.pull_request.head.ref }}
+              fi
+            else
+              echo "No formatting/lint fixes to commit"
+            fi
+          else
+            echo "Not a push nor a same-repo PR; skipping push to avoid permissions issues"
+          fi

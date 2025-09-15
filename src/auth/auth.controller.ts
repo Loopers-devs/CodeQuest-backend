@@ -8,8 +8,9 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
 import { SocialLoginDto } from './dto/social-login.dto';
@@ -23,11 +24,17 @@ import { RegisterDto } from './dto/register.dto';
 import { DiscordAuthGuard } from './guard/discord-auth.guard';
 import { DiscordProfile, GoogleProfile } from 'src/interfaces';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
+  @ApiResponse({
+    status: 201,
+    description: 'Login exitoso',
+    example: { message: 'Inicio de sesión exitoso' },
+  })
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -42,6 +49,11 @@ export class AuthController {
     return { message: 'Inicio de sesión exitoso' };
   }
 
+  @ApiResponse({
+    status: 201,
+    description: 'Registro exitoso',
+    example: { message: 'Registro exitoso' },
+  })
   @Post('register')
   async register(
     @Body() registerDto: RegisterDto,
@@ -57,6 +69,20 @@ export class AuthController {
     return { message: 'Registro exitoso' };
   }
 
+  @ApiResponse({
+    status: 201,
+    description: 'Token de acceso actualizado exitosamente',
+    example: { message: 'Token de acceso actualizado exitosamente' },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'No autorizado',
+    example: {
+      statusCode: 401,
+      message: 'Session caducada, por favor inicie sesión nuevamente',
+      error: 'Unauthorized',
+    },
+  })
   @Post('refresh')
   async refresh(
     @Req() req: Request,
@@ -110,7 +136,7 @@ export class AuthController {
       nickname: user.name.givenName,
       email: user.emails[0].value,
       fullName: user.displayName,
-      picture: user.photos[0]?.value || null,
+      image: user.photos[0]?.value || null,
       provider: 'GOOGLE',
     };
 
@@ -144,7 +170,7 @@ export class AuthController {
       userId: user.id,
       email: user.email,
       fullName: user.global_name,
-      picture: user.avatar,
+      image: user.avatar,
       provider: 'DISCORD',
       nickname: user.username,
     });
