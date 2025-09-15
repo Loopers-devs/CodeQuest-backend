@@ -11,7 +11,7 @@ import {
   Req,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type{ Request } from 'express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -105,7 +105,6 @@ export class PostsController {
   @Get()
   async list(@Query() q: any) {
     // Parseo ligero de query -> PostListParams
-    console.log({query:q.search});
     
     const params: PostListParams = {
       search: q.search,

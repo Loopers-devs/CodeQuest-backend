@@ -8,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
-  IPostRepository,
+  type IPostRepository,
   DbPost,
   PostListParams,
   PagedResult,
