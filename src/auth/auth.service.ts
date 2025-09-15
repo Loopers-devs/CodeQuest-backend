@@ -110,7 +110,7 @@ export class AuthService {
     }
   }
 
-  generateRefreshToken(payload: any) {
+  generateRefreshToken(payload: Record<string, any>) {
     return this.jwtService.sign(payload, {
       expiresIn: envs.jwtRefreshExpiresIn,
       secret: envs.jwtRefreshSecret,

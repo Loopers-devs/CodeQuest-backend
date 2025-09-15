@@ -4,7 +4,7 @@ import * as bcryptjs from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserProvider, ProviderType } from 'src/interfaces';
-import { IUserRepository } from './interfaces';
+import type { IUserRepository } from './interfaces';
 
 @Injectable()
 export class UsersService {
