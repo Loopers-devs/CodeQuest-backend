@@ -93,6 +93,3 @@ jobs:
           else
             echo "Not a push nor a same-repo PR; skipping push to avoid permissions issues"
           fi
-          else
-            echo "Not a push nor a same-repo PR; skipping push to avoid permissions issues"
-          fi
