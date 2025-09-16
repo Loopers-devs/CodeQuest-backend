@@ -62,17 +62,16 @@ export enum UserProvider {
   DISCORD = 'DISCORD',
 }
 
-export enum PostStatus{
-  DRAFT='DRAFT',
-  PUBLISHED='PUBLISHED',
-  ARCHIVED='ARCHIVED'
+export enum PostStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
 }
 
-export enum PostVisibility{
-  PUBLIC='PUBLIC',
-  MEMBERS='MEMBERS',
-  PRIVATE='PRIVATE'
-
+export enum PostVisibility {
+  PUBLIC = 'PUBLIC',
+  MEMBERS = 'MEMBERS',
+  PRIVATE = 'PRIVATE',
 }
 
 export type RoleType = `${Role}`;
@@ -82,5 +81,3 @@ export interface Hasher {
   hash(data: string, saltRounds?: number): string;
   compare(data: string, encrypted: string): Promise<boolean>;
 }
-
-

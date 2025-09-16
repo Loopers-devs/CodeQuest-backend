@@ -16,12 +16,9 @@ import { PostStatus, PostVisibility } from 'src/interfaces';
 
 @Injectable()
 export class PrismaPostRepository implements IPostRepository {
-
   constructor(private readonly prisma: PrismaService) {}
 
-
   async findById(id: string): Promise<DbPost | null> {
-
     return this.prisma.post.findUnique({ where: { id } });
   }
 
@@ -30,14 +27,12 @@ export class PrismaPostRepository implements IPostRepository {
   }
 
   async existsBySlug(slug: string): Promise<boolean> {
-
     const existSlug = await this.prisma.post.findUnique({
       where: { slug },
       select: { id: true },
     });
     return !!existSlug;
   }
-
 
   async list(params?: PostListParams): Promise<PagedResult<DbPost>> {
     const take = params?.take ?? 10;
@@ -51,9 +46,9 @@ export class PrismaPostRepository implements IPostRepository {
       ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     });
 
-    const nextCursor = items.length === take ? items[items.length - 1].id : null;
+    const nextCursor =
+      items.length === take ? items[items.length - 1].id : null;
     return { items, nextCursor };
-    
   }
 
   async listByAuthor(

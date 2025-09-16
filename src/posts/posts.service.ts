@@ -21,8 +21,6 @@ import { PostStatus, PostVisibility } from 'src/interfaces';
 
 @Injectable()
 export class PostsService {
-
-  
   constructor(
     @Inject('PostRepository')
     private readonly postRepo: IPostRepository,
@@ -31,7 +29,7 @@ export class PostsService {
   // ============== Creación ==============
   async create(dto: CreatePostDto, authorId: number): Promise<DbPost> {
     // (Opcional) si el slug lo manda el cliente, valida unicidad
-    if (dto.slug && await this.postRepo.existsBySlug(dto.slug)) {
+    if (dto.slug && (await this.postRepo.existsBySlug(dto.slug))) {
       throw new ConflictException('El slug ya está en uso');
     }
 
@@ -46,7 +44,11 @@ export class PostsService {
   }
 
   // ============== Actualización ==============
-  async update(id: string, dto: UpdatePostDto, currentUserId: number): Promise<DbPost> {
+  async update(
+    id: string,
+    dto: UpdatePostDto,
+    currentUserId: number,
+  ): Promise<DbPost> {
     const existing = await this.postRepo.findById(id);
     if (!existing) throw new NotFoundException('Post no encontrado');
 
@@ -144,8 +146,10 @@ export class PostsService {
     return this.postRepo.list(merged);
   }
 
-  async listByAuthor(authorId: number, params?: Omit<PostListParams, 'authorId'>)
-    : Promise<PagedResult<DbPost>> {
+  async listByAuthor(
+    authorId: number,
+    params?: Omit<PostListParams, 'authorId'>,
+  ): Promise<PagedResult<DbPost>> {
     return this.postRepo.listByAuthor(authorId, params);
   }
 
