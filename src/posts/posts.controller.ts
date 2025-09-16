@@ -8,29 +8,25 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import type{ Request } from 'express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostListParams } from './interfaces';
-import { PostStatus, PostVisibility } from 'src/interfaces';
+import { PostListQueryDto } from './dto/post-list-query.dto';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   // ---------- Crear ----------
-  
+
   @Post()
   @Auth()
-  async create(@Body() dto: CreatePostDto, @Req() req: Request) {
-    
-    const authorId = (req.user as any)?.userId; 
-    return this.postsService.create(dto, authorId);
+  async create(@Body() dto: CreatePostDto, @GetUser('userId') userId: number) {
+    return this.postsService.create(dto, userId);
   }
 
   // ---------- Actualizar ----------
@@ -39,10 +35,9 @@ export class PostsController {
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdatePostDto,
-    @Req() req: Request,
+    @GetUser('userId') userId: number,
   ) {
-    const currentUserId = (req.user as any)?.userId;
-    return this.postsService.update(id, dto, currentUserId);
+    return this.postsService.update(id, dto, userId);
   }
 
   // ---------- Publicar / Despublicar ----------
@@ -50,20 +45,18 @@ export class PostsController {
   @Auth()
   async publish(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Req() req: Request,
+    @GetUser('userId') userId: number,
   ) {
-    const currentUserId = (req.user as any)?.userId;
-    return this.postsService.publish(id, currentUserId);
+    return this.postsService.publish(id, userId);
   }
 
   @Post(':id/unpublish')
   @Auth()
   async unpublish(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Req() req: Request,
+    @GetUser('userId') userId: number,
   ) {
-    const currentUserId = (req.user as any)?.userId;
-    return this.postsService.unpublish(id, currentUserId);
+    return this.postsService.unpublish(id, userId);
   }
 
   // ---------- Borrado lógico / Restaurar ----------
@@ -71,10 +64,9 @@ export class PostsController {
   @Auth()
   async remove(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Req() req: Request,
+    @GetUser('userId') userId: number,
   ) {
-    const currentUserId = (req.user as any)?.userId;
-    await this.postsService.remove(id, currentUserId);
+    await this.postsService.remove(id, userId);
     return { ok: true };
   }
 
@@ -82,10 +74,9 @@ export class PostsController {
   @Auth()
   async restore(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @Req() req: Request,
+    @GetUser('userId') userId: number,
   ) {
-    const currentUserId = (req.user as any)?.userId;
-    return this.postsService.restore(id, currentUserId);
+    return this.postsService.restore(id, userId);
   }
 
   // ---------- Lecturas ----------
@@ -103,63 +94,20 @@ export class PostsController {
 
   // ---------- Feed / Listados ----------
   @Get()
-  async list(@Query() q: any) {
-    // Parseo ligero de query -> PostListParams
-    
-    const params: PostListParams = {
-      search: q.search,
-      authorId: q.authorId ? Number(q.authorId) : undefined,
-      category: q.category ?? undefined,
-      tags: q.tags
-        ? String(q.tags)
-            .split(',')
-            .map((t) => t.trim().toLowerCase())
-            .filter(Boolean)
-        : undefined,
-      status: q.status as PostStatus | undefined,
-      visibility: q.visibility as PostVisibility | undefined,
-      publishedOnly:
-        typeof q.publishedOnly === 'string'
-          ? q.publishedOnly !== 'false'
-          : undefined,
-      dateFrom: q.dateFrom ? new Date(q.dateFrom) : undefined,
-      dateTo: q.dateTo ? new Date(q.dateTo) : undefined,
-      sortBy: q.sortBy,
-      order: q.order,
-      cursor: q.cursor,
-      take: q.take ? Number(q.take) : undefined,
-    };
-
-    return this.postsService.list(params);
+  async list(
+    @Query()
+    query: PostListQueryDto,
+  ) {
+    return this.postsService.list(query);
   }
 
   @Get('author/:authorId')
-  async listByAuthor(@Param('authorId') authorId: string, @Query() q: any) {
-    const params: Omit<PostListParams, 'authorId'> = {
-      search: q.search,
-      category: q.category ?? undefined,
-      tags: q.tags
-        ? String(q.tags)
-            .split(',')
-            .map((t) => t.trim().toLowerCase())
-            .filter(Boolean)
-        : undefined,
-      status: q.status as PostStatus | undefined,
-      visibility: q.visibility as PostVisibility | undefined,
-      dateFrom: q.dateFrom ? new Date(q.dateFrom) : undefined,
-      dateTo: q.dateTo ? new Date(q.dateTo) : undefined,
-      sortBy: q.sortBy,
-      order: q.order,
-      cursor: q.cursor,
-      take: q.take ? Number(q.take) : undefined,
-      // publishedOnly lo puedes permitir aquí si quieres solo públicos del autor
-      publishedOnly:
-        typeof q.publishedOnly === 'string'
-          ? q.publishedOnly !== 'false'
-          : undefined,
-    };
-
-    return this.postsService.listByAuthor(Number(authorId), params);
+  async listByAuthor(
+    @Param('authorId') authorId: string,
+    @Query()
+    query: PostListQueryDto,
+  ) {
+    return this.postsService.listByAuthor(Number(authorId), query);
   }
 
   @Get(':id/related')
