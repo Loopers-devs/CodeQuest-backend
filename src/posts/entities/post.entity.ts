@@ -21,18 +21,22 @@ export class PostEntity {
 
   @IsString()
   @MinLength(5)
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   title: string;
 
   @IsString()
   @MinLength(5)
-  @Transform(({ value }) => toSlug(value))
+  @Transform(({ value }: { value: string }) => toSlug(value))
   slug: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(280)
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   summary: string | null;
 
   @IsString()
@@ -41,13 +45,15 @@ export class PostEntity {
 
   @IsOptional()
   @IsString()
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim() : value))
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   category: string | null;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  @Transform(({ value }) =>
+  @Transform(({ value }: { value: unknown }) =>
     Array.isArray(value)
       ? [...new Set(value.map((t: string) => t.trim().toLowerCase()))]
       : value,

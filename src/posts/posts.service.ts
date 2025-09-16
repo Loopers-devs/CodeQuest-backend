@@ -1,6 +1,5 @@
 // src/posts/posts.service.ts
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   Inject,

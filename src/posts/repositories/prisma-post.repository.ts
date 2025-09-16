@@ -73,7 +73,7 @@ export class PrismaPostRepository implements IPostRepository {
       OR: [
         base.category ? { category: base.category } : undefined,
         base.tags?.length ? { tags: { hasSome: base.tags } } : undefined,
-      ].filter(Boolean) as any,
+      ].filter(Boolean) as Prisma.PostWhereInput[],
     };
 
     return this.prisma.post.findMany({

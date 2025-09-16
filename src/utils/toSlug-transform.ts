@@ -1,6 +1,6 @@
 /** Helper: genera slug legible sin depender de librerías */
 export const toSlug = (value: string): string => {
-  if (typeof value !== 'string') return value as any;
+  if (typeof value !== 'string') return value;
   return value
     .toLowerCase()
     .normalize('NFD')
