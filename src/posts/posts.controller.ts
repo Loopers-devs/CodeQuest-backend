@@ -16,13 +16,18 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostListQueryDto } from './dto/post-list-query.dto';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
-
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+} from '@nestjs/swagger';
 
 @ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
-  constructor(private readonly postsService: PostsService) { }
+  constructor(private readonly postsService: PostsService) {}
 
   // ---------- Crear ----------
 
@@ -40,7 +45,11 @@ export class PostsController {
   @Patch(':id')
   @Auth()
   @ApiOperation({ summary: 'Actualizar un post existente' })
-  @ApiParam({ name: 'id', type: String, description: 'ID del post a actualizar' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID del post a actualizar',
+  })
   @ApiBody({ type: UpdatePostDto }) // El cuerpo de la solicitud será de tipo UpdatePostDto
   @ApiResponse({ status: 200, description: 'Post actualizado correctamente' })
   @ApiResponse({ status: 404, description: 'Post no encontrado' })
@@ -68,7 +77,11 @@ export class PostsController {
   @Post(':id/unpublish')
   @Auth()
   @ApiOperation({ summary: 'Despublicar un post' })
-  @ApiParam({ name: 'id', type: String, description: 'ID del post a despublicar' })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'ID del post a despublicar',
+  })
   @ApiResponse({ status: 200, description: 'Post despublicado correctamente' })
   async unpublish(
     @Param('id', new ParseUUIDPipe()) id: string,

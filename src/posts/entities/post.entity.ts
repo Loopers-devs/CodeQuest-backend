@@ -48,7 +48,11 @@ export class PostEntity {
   )
   summary: string | null;
 
-  @ApiProperty({ example: 'En este post exploramos cómo funciona React...', type: String, description: 'Contenido del post' })
+  @ApiProperty({
+    example: 'En este post exploramos cómo funciona React...',
+    type: String,
+    description: 'Contenido del post',
+  })
   @IsString()
   @MinLength(10)
   content: string;
@@ -66,7 +70,6 @@ export class PostEntity {
   )
   category: string | null;
 
-
   @ApiProperty({
     example: ['react', 'javascript'],
     type: [String],
@@ -83,16 +86,13 @@ export class PostEntity {
   )
   tags: string[];
 
-
   @ApiProperty({ enum: PostStatus, description: 'Estado del post' })
   @IsEnum(PostStatus)
   status: PostStatus;
 
-  
   @ApiProperty({ enum: PostVisibility, description: 'Visibilidad del post' })
   @IsEnum(PostVisibility)
   visibility: PostVisibility;
-
 
   @ApiProperty({
     example: 'https://example.com/image.jpg',
@@ -103,7 +103,6 @@ export class PostEntity {
   @IsOptional()
   @IsUrl()
   coverImageUrl: string | null;
-
 
   @ApiProperty({
     example: '2023-06-15T12:00:00Z',
@@ -116,18 +115,29 @@ export class PostEntity {
   @Type(() => Date)
   publishedAt: Date | null;
 
-
-  @ApiProperty({ example: 123, type: Number, description: 'Número de vistas del post' })
+  @ApiProperty({
+    example: 123,
+    type: Number,
+    description: 'Número de vistas del post',
+  })
   @IsInt()
   @Min(0)
   views: number;
 
-  @ApiProperty({ example: 12, type: Number, description: 'Número de comentarios' })
+  @ApiProperty({
+    example: 12,
+    type: Number,
+    description: 'Número de comentarios',
+  })
   @IsInt()
   @Min(0)
   commentsCount: number;
 
-  @ApiProperty({ example: 5, type: Number, description: 'Número de reacciones' })
+  @ApiProperty({
+    example: 5,
+    type: Number,
+    description: 'Número de reacciones',
+  })
   @IsInt()
   @Min(0)
   reactionsCount: number;
