@@ -24,6 +24,18 @@ enum Role {
   ADMIN
 }
 
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PostVisibility {
+  PUBLIC     
+  MEMBERS    
+  PRIVATE    
+}
+
 model User {
   id                Int          @id @default(autoincrement())
   email             String       @unique
@@ -46,6 +58,48 @@ model User {
   updatedAt         DateTime     @updatedAt
   deletedAt         DateTime?
 
+  posts             Post[]
+
   @@index([providerType])
   @@index([providerAccountId])
+}
+
+
+
+model Post {
+  id             String          @id @default(uuid())
+
+  slug           String          @unique
+  title          String
+  summary        String?
+  content        String          // markdown o html
+
+  // Clasificación y búsqueda
+  category       String?         // si luego quieres entidad Category, se cambia a relación
+  tags           String[]        // array de tags (PostgreSQL) para filtros rápidos
+
+  // Publicación
+  status         PostStatus      @default(DRAFT)
+  visibility     PostVisibility  @default(PUBLIC)
+  coverImageUrl  String?
+  publishedAt    DateTime?
+
+  // Métricas
+  views          Int             @default(0)
+  commentsCount  Int             @default(0)
+  reactionsCount Int             @default(0)
+
+  // Auditoría
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+
+  // Autor
+  authorId       Int
+  author         User            @relation(fields: [authorId], references: [id])
+
+  // Índices útiles para listados y buscador
+  @@index([status, visibility, publishedAt])
+  @@index([category])
+  @@index([title])
 }
