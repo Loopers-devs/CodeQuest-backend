@@ -1,5 +1,6 @@
 import { Type, Transform } from 'class-transformer';
-import type { PostSortBy, SortOrder } from '../interfaces';
+import type { PostSortBy, SortOrder, PostInclude } from '../interfaces';
+import { PostIncludes } from '../interfaces';
 import {
   IsOptional,
   IsString,
@@ -103,4 +104,19 @@ export class PostListQueryDto {
   @IsInt()
   @Min(1)
   take?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (Array.isArray(value))
+      return value.map((v) => String(v).trim().toLowerCase()).filter(Boolean);
+    return String(value)
+      .split(',')
+      .map((v) => v.trim().toLowerCase())
+      .filter(Boolean);
+  })
+  @IsArray()
+  @ArrayUnique()
+  @IsIn([...PostIncludes], { each: true })
+  includes?: PostInclude[];
 }

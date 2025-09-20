@@ -14,6 +14,10 @@ export type PostSortBy =
 
 export type SortOrder = 'asc' | 'desc';
 
+// Allowed `include` keys for posts (used by query params to include relations)
+export const PostIncludes = ['author', 'comments', 'category'] as const;
+export type PostInclude = (typeof PostIncludes)[number];
+
 export interface PostListParams {
   // Filtros
   search?: string; // título/contenido/slug
@@ -32,6 +36,7 @@ export interface PostListParams {
   order?: SortOrder; // default: desc
   cursor?: string; // id o publishedAt-id encodeado
   take?: number; // page size (default: 10-20)
+  includes?: PostInclude[]; // relaciones a incluir (author, comments, category)
 }
 
 export type CreatePostData = Pick<

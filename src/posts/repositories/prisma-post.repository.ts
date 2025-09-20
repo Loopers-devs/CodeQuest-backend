@@ -43,6 +43,18 @@ export class PrismaPostRepository implements IPostRepository {
       where,
       orderBy,
       take,
+      include: {
+        ...((params?.includes ?? []).includes('author') && {
+          author: {
+            select: {
+              id: true,
+              fullName: true,
+              nickname: true,
+              image: true,
+            },
+          },
+        }),
+      },
       ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     });
 
