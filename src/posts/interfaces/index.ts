@@ -36,6 +36,8 @@ export interface PostListParams {
   order?: SortOrder; // default: desc
   cursor?: string; // id o publishedAt-id encodeado
   take?: number; // page size (default: 10-20)
+
+  paginate?: number; // página (alternativa a cursor, menos eficiente)
   includes?: PostInclude[]; // relaciones a incluir (author, comments, category)
 }
 
@@ -72,6 +74,12 @@ export interface PagedResult<T> {
   items: T[];
   nextCursor?: string | null;
   total?: number; // opcional (si haces count)
+  metadata: {
+    totalPages: number; // total de páginas
+    currentPage: number; // página actual
+    nextPage: number | null; // siguiente página (si la hay)
+    previousPage: number | null; // página anterior (si la hay)
+  };
 }
 
 // -------- Contrato del repositorio ----------

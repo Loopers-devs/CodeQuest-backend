@@ -43,6 +43,9 @@ export class PrismaPostRepository implements IPostRepository {
       where,
       orderBy,
       take,
+      skip: params?.cursor
+        ? undefined
+        : take * (params?.paginate ? params?.paginate - 1 : 0),
       include: {
         ...((params?.includes ?? []).includes('author') && {
           author: {
@@ -58,9 +61,28 @@ export class PrismaPostRepository implements IPostRepository {
       ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     });
 
+    const count = await this.prisma.post.count({ where });
+
     const nextCursor =
       items.length === take ? items[items.length - 1].id : null;
-    return { items, nextCursor };
+
+    const totalPages = Math.ceil(count / take);
+    const currentPage =
+      items.length > 0
+        ? Math.ceil((params?.cursor ? (params?.take ?? 10) + 1 : 1) / take)
+        : 0;
+    const nextPage = currentPage < totalPages ? currentPage + 1 : null;
+
+    return {
+      items,
+      nextCursor,
+      metadata: {
+        totalPages,
+        currentPage,
+        nextPage,
+        previousPage: currentPage > 1 ? currentPage - 1 : null,
+      },
+    };
   }
 
   async listByAuthor(
