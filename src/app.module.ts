@@ -9,7 +9,14 @@ import { SeedsModule } from './seeds/seeds.module';
 import { PostFavoritesModule } from './post-favorites/post-favorites.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, PrismaModule, PostsModule, SeedsModule, PostFavoritesModule],
+  imports: [
+    UsersModule,
+    AuthModule,
+    PrismaModule,
+    PostsModule,
+    SeedsModule,
+    PostFavoritesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
