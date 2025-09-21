@@ -16,14 +16,26 @@ import { PostStatus, PostVisibility } from 'src/interfaces';
 
 @Injectable()
 export class PrismaPostRepository implements IPostRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string): Promise<DbPost | null> {
-    return this.prisma.post.findUnique({ where: { id } });
+    return this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        tags: true,
+      },
+    });
   }
 
   async findBySlug(slug: string): Promise<DbPost | null> {
-    return this.prisma.post.findUnique({ where: { slug } });
+    return this.prisma.post.findUnique({
+      where: { slug },
+      include: {
+        category: true,
+        tags: true,
+      },
+    });
   }
 
   async existsBySlug(slug: string): Promise<boolean> {
@@ -57,6 +69,8 @@ export class PrismaPostRepository implements IPostRepository {
             },
           },
         }),
+        category:true,
+        tags:true
       },
       ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     });
@@ -114,6 +128,10 @@ export class PrismaPostRepository implements IPostRepository {
       where,
       orderBy: { publishedAt: 'desc' },
       take: limit,
+      include: {
+        category: true,
+        tags: true,
+      },
     });
   }
 
@@ -125,24 +143,80 @@ export class PrismaPostRepository implements IPostRepository {
         slug: data.slug,
         summary: data.summary,
         content: data.content,
-        category: data.category,
-        tags: data.tags,
+        categoryId: data.categoryId,
         status: data.status,
         visibility: data.visibility,
         coverImageUrl: data.coverImageUrl,
         authorId: data.authorId, // toma del usuario autenticado (no del cliente)
         // Opcional: setear publishedAt si creas como PUBLISHED
         // publishedAt: data.status === PostStatus.PUBLISHED ? new Date() : null,
+        tags: {
+          connectOrCreate: data.tags.map(tag => ({
+            where: { name: tag },
+            create: {
+              name: tag,
+              description: `tag generado automaticamente por ${tag}`
+            }
+          })),
+        },
       },
+      include: {
+        tags: true,
+        category: true
+      }
     });
   }
 
   async update(id: string, data: UpdatePostData): Promise<DbPost> {
-    return this.prisma.post.update({ where: { id }, data });
+    const { tags, ...rest } = data;
+
+    return this.prisma.post.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(tags && {
+          tags: {
+            connectOrCreate: tags.map(tag => ({
+              where: { name: tag },
+              create: {
+                name: tag,
+                description: `Tag generado automáticamente para ${tag}`,
+              },
+            })),
+          },
+        }),
+      },
+      include: {
+        tags: true,
+        category: true,
+      },
+    });
   }
 
   async updateBySlug(slug: string, data: UpdatePostData): Promise<DbPost> {
-    return this.prisma.post.update({ where: { slug }, data });
+    const { tags, ...rest } = data;
+
+    return this.prisma.post.update({
+      where: { slug },
+      data: {
+        ...rest,
+        ...(tags && {
+          tags: {
+            connectOrCreate: tags.map(tag => ({
+              where: { name: tag },
+              create: {
+                name: tag,
+                description: `Tag generado automáticamente para ${tag}`,
+              },
+            })),
+          },
+        }),
+      },
+      include: {
+        tags: true,
+        category: true,
+      },
+    });
   }
 
   // =============== Ciclo de publicación ===============
@@ -152,6 +226,9 @@ export class PrismaPostRepository implements IPostRepository {
       data: {
         status: PostStatus.PUBLISHED,
         publishedAt: new Date(),
+      },include: {
+        category: true,
+        tags: true,
       },
     });
   }
@@ -162,6 +239,9 @@ export class PrismaPostRepository implements IPostRepository {
       data: {
         status: PostStatus.DRAFT,
         publishedAt: null,
+      },include: {
+        category: true,
+        tags: true,
       },
     });
   }
@@ -178,6 +258,10 @@ export class PrismaPostRepository implements IPostRepository {
     return this.prisma.post.update({
       where: { id },
       data: { deletedAt: null },
+      include: {
+        category: true,
+        tags: true,
+      },
     });
   }
 
@@ -218,13 +302,22 @@ export class PrismaPostRepository implements IPostRepository {
     if (p.status) where.status = p.status;
     if (p.visibility) where.visibility = p.visibility;
     if (p.authorId != null) where.authorId = p.authorId;
-    if (p.category != null) where.category = p.category;
+    if (p.category != null) {
+      where.category = {
+        is: {
+          id: p.category
+        }
+      };
+    }
 
     if (p.tags?.length) {
-      // Para String[] en Prisma
-      where.tags = { hasSome: p.tags };
-      // Si es relación many-to-many:
-      // where.tags = { some: { name: { in: p.tags } } };
+      where.tags = {
+        some: {
+          name: {
+            in: p.tags,
+          },
+        },
+      };
     }
 
     if (p.search?.trim()) {

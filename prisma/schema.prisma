@@ -74,15 +74,18 @@ model Post {
   summary        String?
   content        String          // markdown o html
 
-  // Clasificación y búsqueda
-  category       String?         // si luego quieres entidad Category, se cambia a relación
-  tags           String[]        // array de tags (PostgreSQL) para filtros rápidos
+  // tags
+  tags      Tags[]    @relation("PostTags")
 
   // Publicación
   status         PostStatus      @default(DRAFT)
   visibility     PostVisibility  @default(PUBLIC)
   coverImageUrl  String?
   publishedAt    DateTime?
+
+  //categoria
+  categoryId     String
+  category       Category       @relation(fields: [categoryId], references: [id])
 
   // Métricas
   views          Int             @default(0)
@@ -100,6 +103,28 @@ model Post {
 
   // Índices útiles para listados y buscador
   @@index([status, visibility, publishedAt])
-  @@index([category])
+  @@index([categoryId])
   @@index([title])
+}
+
+model Category {
+  id           String          @id @default(uuid())
+  name         String         @unique
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  posts        Post[]
+}
+
+model Tags {
+  id           String          @id @default(uuid())
+  name         String         @unique
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  posts       Post[]   @relation("PostTags")
 }

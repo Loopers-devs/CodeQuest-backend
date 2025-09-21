@@ -13,6 +13,7 @@ import {
   PagedResult,
   CreatePostData,
   UpdatePostData,
+  PostResponseDto,
 } from './interfaces';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -23,7 +24,7 @@ export class PostsService {
   constructor(
     @Inject('PostRepository')
     private readonly postRepo: IPostRepository,
-  ) {}
+  ) { }
 
   // ============== Creación ==============
   async create(dto: CreatePostDto, authorId: number): Promise<DbPost> {
@@ -113,13 +114,21 @@ export class PostsService {
   }
 
   // ============== Lecturas ==============
-  async findById(id: string): Promise<DbPost> {
+  async findById(id: string): Promise<PostResponseDto> {
     const post = await this.postRepo.findById(id);
     if (!post) throw new NotFoundException('Post no encontrado');
-    return post;
+
+    return {
+      ...post,
+      category: post.category.name ?? null,
+      tags: post.tags.map(tag => ({
+        id: tag.id,
+        name: tag.name
+      })),
+    };
   }
 
-  async findBySlug(slug: string, increaseView = true): Promise<DbPost> {
+  async findBySlug(slug: string, increaseView = true): Promise<PostResponseDto> {
     const post = await this.postRepo.findBySlug(slug);
     if (!post) throw new NotFoundException('Post no encontrado');
 
@@ -130,11 +139,18 @@ export class PostsService {
       await this.postRepo.incrementViews(post.id, 1);
     }
 
-    return post;
+    return {
+      ...post,
+      category: post.category?.name ?? null,
+      tags: post.tags.map(tag => ({
+        id: tag.id,
+        name: tag.name,
+      })),
+    };
   }
 
   // ============== Feed / Listados ==============
-  async list(params?: PostListParams): Promise<PagedResult<DbPost>> {
+  async list(params?: PostListParams): Promise<PagedResult<PostResponseDto>> {
     // Atajo común: mostrar solo públicos publicados en el feed
     const merged: PostListParams = {
       publishedOnly: true,
@@ -142,18 +158,51 @@ export class PostsService {
       order: 'desc',
       ...params,
     };
-    return this.postRepo.list(merged);
+    const result = await this.postRepo.list(merged);
+
+    return {
+      ...result,
+      items: result.items.map(post => ({
+        ...post,
+        category: post.category?.name ?? null,
+        tags: post.tags.map(tag => ({
+          id: tag.id,
+          name: tag.name,
+        })),
+      })),
+    };
   }
 
   async listByAuthor(
     authorId: number,
     params?: Omit<PostListParams, 'authorId'>,
-  ): Promise<PagedResult<DbPost>> {
-    return this.postRepo.listByAuthor(authorId, params);
+  ): Promise<PagedResult<PostResponseDto>> {
+    const result = await this.postRepo.listByAuthor(authorId, params);
+
+    return {
+      ...result,
+      items: result.items.map(post => ({
+        ...post,
+        category: post.category?.name ?? null,
+        tags: post.tags.map(tag => ({
+          id: tag.id,
+          name: tag.name,
+        })),
+      })),
+    };
   }
 
-  async listRelated(id: string, limit = 3): Promise<DbPost[]> {
-    return this.postRepo.listRelated(id, limit);
+  async listRelated(id: string, limit = 3): Promise<PostResponseDto[]> {
+    const posts = await this.postRepo.listRelated(id, limit);
+
+    return posts.map(post => ({
+      ...post,
+      category: post.category?.name ?? null,
+      tags: post.tags.map(tag => ({
+        id: tag.id,
+        name: tag.name,
+      })),
+    }));
   }
 
   // ============== Contadores (reacciones / comentarios) ==============

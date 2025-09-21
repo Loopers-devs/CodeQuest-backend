@@ -1,8 +1,13 @@
 import { Prisma } from '@prisma/client';
-import { PostStatus, PostVisibility } from 'src/interfaces';
+import { PostStatus, PostVisibility } from '@prisma/client';
+
+
 import { PostEntity } from '../entities/post.entity';
 
-export type DbPost = Prisma.PostGetPayload<{}>;
+export type DbPost = Prisma.PostGetPayload<{include: {
+  category: true;
+  tags: true;
+}}>;
 
 // -------- Tipos de apoyo ----------
 export type PostSortBy =
@@ -40,19 +45,38 @@ export interface PostListParams {
   paginate?: number; // página (alternativa a cursor, menos eficiente)
   includes?: PostInclude[]; // relaciones a incluir (author, comments, category)
 }
+export class TagDto {
+  id: string;
+  name: string;
+}
+export interface PostResponseDto {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: string;
+  coverImageUrl: string | null;
+  status: PostStatus;
+  visibility: PostVisibility;
+  publishedAt: Date | null;
+  views: number;
+  commentsCount: number;
+  reactionsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  authorId: number;
+  category: string | null;
+  tags: TagDto[];
+}
 
-export type CreatePostData = Pick<
-  PostEntity,
-  | 'title'
-  | 'slug'
-  | 'summary'
-  | 'content'
-  | 'category'
-  | 'tags'
-  | 'status'
-  | 'visibility'
-  | 'coverImageUrl'
-> & { authorId: number };
+
+export type CreatePostData = Omit<
+  PostEntity,'tags'
+> & { 
+  tags:string[];
+  authorId: number;
+};
 
 export type UpdatePostData = Partial<
   Pick<
@@ -61,7 +85,7 @@ export type UpdatePostData = Partial<
     | 'slug'
     | 'summary'
     | 'content'
-    | 'category'
+    | 'categoryId'
     | 'tags'
     | 'status'
     | 'visibility'
