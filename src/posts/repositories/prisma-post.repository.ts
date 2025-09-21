@@ -1,4 +1,3 @@
-// src/posts/repositories/prisma-post.repository.ts
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -39,6 +38,17 @@ export class PrismaPostRepository implements IPostRepository {
     const where = this.buildWhere(params);
     const orderBy = this.buildOrderBy(params?.sortBy, params?.order);
 
+    const includeFavorite =
+      params?.userId && (params?.includes ?? []).includes('favorites')
+        ? {
+            favoritedBy: {
+              where: { userId: params.userId },
+              select: { userId: true },
+              take: 1,
+            },
+          }
+        : {};
+
     const items = await this.prisma.post.findMany({
       where,
       orderBy,
@@ -47,6 +57,7 @@ export class PrismaPostRepository implements IPostRepository {
         ? undefined
         : take * (params?.paginate ? params?.paginate - 1 : 0),
       include: {
+        ...includeFavorite,
         ...((params?.includes ?? []).includes('author') && {
           author: {
             select: {
@@ -74,7 +85,10 @@ export class PrismaPostRepository implements IPostRepository {
     const nextPage = currentPage < totalPages ? currentPage + 1 : null;
 
     return {
-      items,
+      items: items.map((item) => ({
+        ...item,
+        isFavorited: item.favoritedBy ? item.favoritedBy.length > 0 : false,
+      })),
       nextCursor,
       metadata: {
         totalPages,
@@ -201,6 +215,23 @@ export class PrismaPostRepository implements IPostRepository {
       where: { id },
       data: { reactionsCount: { increment: by } },
     });
+  }
+
+  async findManyByIds(ids: string[]): Promise<DbPost[]> {
+    if (!ids.length) return [];
+    const posts = await this.prisma.post.findMany({
+      where: { id: { in: ids } },
+      include: {
+        author: {
+          select: { id: true, fullName: true, nickname: true, image: true },
+        },
+      },
+    });
+
+    return posts.map((item) => ({
+      ...item,
+      isFavorited: true,
+    }));
   }
 
   // =============== Helpers privados ===============

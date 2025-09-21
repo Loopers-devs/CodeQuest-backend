@@ -119,4 +119,9 @@ export class PostListQueryDto {
   @ArrayUnique()
   @IsIn([...PostIncludes], { each: true })
   includes?: PostInclude[];
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  userId?: number; // ID del usuario autenticado, para saber si ha marcado favoritos
 }
