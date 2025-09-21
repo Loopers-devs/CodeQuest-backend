@@ -1,5 +1,8 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import {
+  CategoryListQueryDto,
+  CreateCategoryDto,
+} from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import type { ICategoryRepository } from './interfaces';
 import { Category } from './entities/category.entity';
@@ -30,8 +33,8 @@ export class CategoryService {
     return category;
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.categoryRepository.findAll();
+  async findAll(query: CategoryListQueryDto) {
+    return this.categoryRepository.findAll(query);
   }
 
   async update(id: string, updateDto: UpdateCategoryDto): Promise<Category> {

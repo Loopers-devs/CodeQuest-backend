@@ -1,7 +1,11 @@
+import { PrismaService } from 'src/prisma/prisma.service';
 import { Category } from '../entities/category.entity';
 import { DbCategory, ICategoryRepository } from '../interfaces';
-import { PrismaService } from '../../../../src/prisma/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { CategoryListQueryDto } from '../dto/create-category.dto';
+import { Prisma } from '@prisma/client';
 
+@Injectable()
 export class PrismaCategoryRepository implements ICategoryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -15,9 +19,39 @@ export class PrismaCategoryRepository implements ICategoryRepository {
     return this.toEntity(category);
   }
 
-  async findAll(): Promise<Category[]> {
-    const categories = await this.prismaService.category.findMany();
-    return categories.map(this.toEntity);
+  async findAll(dto: CategoryListQueryDto) {
+    const where: Prisma.CategoryWhereInput = dto.search
+      ? {
+          OR: [
+            { name: { contains: dto.search, mode: 'insensitive' } },
+            { description: { contains: dto.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+
+    const skip = (dto.page - 1) * dto.pageSize;
+
+    const [rows, total] = await this.prismaService.$transaction([
+      this.prismaService.category.findMany({
+        where,
+        skip,
+        take: dto.pageSize,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prismaService.category.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / dto.pageSize);
+
+    return {
+      items: rows.map((r) => this.toEntity(r)),
+      page: dto.page,
+      pageSize: dto.pageSize,
+      total,
+      totalPages,
+      hasNext: dto.page < totalPages,
+      hasPrev: dto.page > 1,
+    };
   }
 
   async create(

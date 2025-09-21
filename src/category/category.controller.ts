@@ -6,8 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
+import {
+  CategoryListQueryDto,
+  CreateCategoryDto,
+} from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryService } from './category.service';
 
@@ -21,8 +25,8 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoriesService.findAll();
+  findAll(@Query() query: CategoryListQueryDto) {
+    return this.categoriesService.findAll(query);
   }
 
   @Get(':id')
