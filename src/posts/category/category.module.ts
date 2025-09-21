@@ -10,6 +10,7 @@ import { PrismaCategoryRepository } from './repository/prisma-category.repositor
       provide: 'CategoryRepository',
       useClass: PrismaCategoryRepository,
     },
-  CategoryService],
+    CategoryService,
+  ],
 })
 export class CategoryModule {}

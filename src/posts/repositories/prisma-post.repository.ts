@@ -16,7 +16,7 @@ import { PostStatus, PostVisibility } from 'src/interfaces';
 
 @Injectable()
 export class PrismaPostRepository implements IPostRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<DbPost | null> {
     return this.prisma.post.findUnique({
@@ -69,8 +69,8 @@ export class PrismaPostRepository implements IPostRepository {
             },
           },
         }),
-        category:true,
-        tags:true
+        category: true,
+        tags: true,
       },
       ...(params?.cursor ? { cursor: { id: params.cursor }, skip: 1 } : {}),
     });
@@ -151,19 +151,19 @@ export class PrismaPostRepository implements IPostRepository {
         // Opcional: setear publishedAt si creas como PUBLISHED
         // publishedAt: data.status === PostStatus.PUBLISHED ? new Date() : null,
         tags: {
-          connectOrCreate: data.tags.map(tag => ({
+          connectOrCreate: data.tags.map((tag) => ({
             where: { name: tag },
             create: {
               name: tag,
-              description: `tag generado automaticamente por ${tag}`
-            }
+              description: `tag generado automaticamente por ${tag}`,
+            },
           })),
         },
       },
       include: {
         tags: true,
-        category: true
-      }
+        category: true,
+      },
     });
   }
 
@@ -176,7 +176,7 @@ export class PrismaPostRepository implements IPostRepository {
         ...rest,
         ...(tags && {
           tags: {
-            connectOrCreate: tags.map(tag => ({
+            connectOrCreate: tags.map((tag) => ({
               where: { name: tag },
               create: {
                 name: tag,
@@ -202,7 +202,7 @@ export class PrismaPostRepository implements IPostRepository {
         ...rest,
         ...(tags && {
           tags: {
-            connectOrCreate: tags.map(tag => ({
+            connectOrCreate: tags.map((tag) => ({
               where: { name: tag },
               create: {
                 name: tag,
@@ -226,7 +226,8 @@ export class PrismaPostRepository implements IPostRepository {
       data: {
         status: PostStatus.PUBLISHED,
         publishedAt: new Date(),
-      },include: {
+      },
+      include: {
         category: true,
         tags: true,
       },
@@ -239,7 +240,8 @@ export class PrismaPostRepository implements IPostRepository {
       data: {
         status: PostStatus.DRAFT,
         publishedAt: null,
-      },include: {
+      },
+      include: {
         category: true,
         tags: true,
       },
@@ -305,8 +307,8 @@ export class PrismaPostRepository implements IPostRepository {
     if (p.category != null) {
       where.category = {
         is: {
-          id: p.category
-        }
+          id: p.category,
+        },
       };
     }
 

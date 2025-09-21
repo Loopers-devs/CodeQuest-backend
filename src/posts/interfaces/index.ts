@@ -1,13 +1,14 @@
 import { Prisma } from '@prisma/client';
 import { PostStatus, PostVisibility } from '@prisma/client';
 
-
 import { PostEntity } from '../entities/post.entity';
 
-export type DbPost = Prisma.PostGetPayload<{include: {
-  category: true;
-  tags: true;
-}}>;
+export type DbPost = Prisma.PostGetPayload<{
+  include: {
+    category: true;
+    tags: true;
+  };
+}>;
 
 // -------- Tipos de apoyo ----------
 export type PostSortBy =
@@ -70,11 +71,8 @@ export interface PostResponseDto {
   tags: TagDto[];
 }
 
-
-export type CreatePostData = Omit<
-  PostEntity,'tags'
-> & { 
-  tags:string[];
+export type CreatePostData = Omit<PostEntity, 'tags'> & {
+  tags: string[];
   authorId: number;
 };
 

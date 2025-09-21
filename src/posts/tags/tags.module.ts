@@ -9,6 +9,8 @@ import { PrismaTagRepository } from './repositories/prisma-tag.repository';
     {
       provide: 'TagRepository',
       useClass: PrismaTagRepository,
-    },TagsService],
+    },
+    TagsService,
+  ],
 })
 export class TagsModule {}

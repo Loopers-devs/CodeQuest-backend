@@ -24,7 +24,7 @@ export class PostsService {
   constructor(
     @Inject('PostRepository')
     private readonly postRepo: IPostRepository,
-  ) { }
+  ) {}
 
   // ============== Creación ==============
   async create(dto: CreatePostDto, authorId: number): Promise<DbPost> {
@@ -121,14 +121,17 @@ export class PostsService {
     return {
       ...post,
       category: post.category.name ?? null,
-      tags: post.tags.map(tag => ({
+      tags: post.tags.map((tag) => ({
         id: tag.id,
-        name: tag.name
+        name: tag.name,
       })),
     };
   }
 
-  async findBySlug(slug: string, increaseView = true): Promise<PostResponseDto> {
+  async findBySlug(
+    slug: string,
+    increaseView = true,
+  ): Promise<PostResponseDto> {
     const post = await this.postRepo.findBySlug(slug);
     if (!post) throw new NotFoundException('Post no encontrado');
 
@@ -142,7 +145,7 @@ export class PostsService {
     return {
       ...post,
       category: post.category?.name ?? null,
-      tags: post.tags.map(tag => ({
+      tags: post.tags.map((tag) => ({
         id: tag.id,
         name: tag.name,
       })),
@@ -162,10 +165,10 @@ export class PostsService {
 
     return {
       ...result,
-      items: result.items.map(post => ({
+      items: result.items.map((post) => ({
         ...post,
         category: post.category?.name ?? null,
-        tags: post.tags.map(tag => ({
+        tags: post.tags.map((tag) => ({
           id: tag.id,
           name: tag.name,
         })),
@@ -181,10 +184,10 @@ export class PostsService {
 
     return {
       ...result,
-      items: result.items.map(post => ({
+      items: result.items.map((post) => ({
         ...post,
         category: post.category?.name ?? null,
-        tags: post.tags.map(tag => ({
+        tags: post.tags.map((tag) => ({
           id: tag.id,
           name: tag.name,
         })),
@@ -195,10 +198,10 @@ export class PostsService {
   async listRelated(id: string, limit = 3): Promise<PostResponseDto[]> {
     const posts = await this.postRepo.listRelated(id, limit);
 
-    return posts.map(post => ({
+    return posts.map((post) => ({
       ...post,
       category: post.category?.name ?? null,
-      tags: post.tags.map(tag => ({
+      tags: post.tags.map((tag) => ({
         id: tag.id,
         name: tag.name,
       })),

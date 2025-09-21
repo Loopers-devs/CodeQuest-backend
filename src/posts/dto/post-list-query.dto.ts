@@ -44,8 +44,6 @@ export class PostListQueryDto {
       .map((v) => v.trim().toLowerCase())
       .filter(Boolean);
   })
-
-  
   @IsArray()
   @ArrayUnique()
   tags?: string[];

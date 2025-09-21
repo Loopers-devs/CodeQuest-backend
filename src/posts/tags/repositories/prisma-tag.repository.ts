@@ -30,9 +30,7 @@ export class PrismaTagRepository implements ITagRepository {
     return tags.map(this.toEntity);
   }
 
-  async create(
-    data: Pick<Tag, 'name' | 'description'>
-  ): Promise<Tag> {
+  async create(data: Pick<Tag, 'name' | 'description'>): Promise<Tag> {
     const created = await this.prismaService.tags.create({
       data,
     });
@@ -42,7 +40,7 @@ export class PrismaTagRepository implements ITagRepository {
 
   async update(
     id: string,
-    data: Partial<Pick<Tag, 'name' | 'description'>>
+    data: Partial<Pick<Tag, 'name' | 'description'>>,
   ): Promise<Tag> {
     const updated = await this.prismaService.tags.update({
       where: { id },

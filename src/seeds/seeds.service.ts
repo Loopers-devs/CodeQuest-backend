@@ -39,9 +39,16 @@ export class SeedsService {
     const allUsers = await this.prismaService.user.findMany();
 
     // 🗂️ Crear categorías
-    const categoryNames = ['Technology', 'Health', 'Travel', 'Food', 'Science', 'Art'];
+    const categoryNames = [
+      'Technology',
+      'Health',
+      'Travel',
+      'Food',
+      'Science',
+      'Art',
+    ];
     const categories = await Promise.all(
-      categoryNames.map(name =>
+      categoryNames.map((name) =>
         this.prismaService.category.create({
           data: {
             name,
@@ -52,9 +59,17 @@ export class SeedsService {
     );
 
     // 🏷️ Crear tags
-    const tagNames = ['tech', 'life', 'travel', 'food', 'health', 'science', 'art'];
+    const tagNames = [
+      'tech',
+      'life',
+      'travel',
+      'food',
+      'health',
+      'science',
+      'art',
+    ];
     const tags = await Promise.all(
-      tagNames.map(name =>
+      tagNames.map((name) =>
         this.prismaService.tags.create({
           data: {
             name,
@@ -68,7 +83,10 @@ export class SeedsService {
     for (let i = 0; i < 50; i++) {
       const author = faker.helpers.arrayElement(allUsers);
       const category = faker.helpers.arrayElement(categories);
-      const selectedTags = faker.helpers.arrayElements(tags, { min: 1, max: 3 });
+      const selectedTags = faker.helpers.arrayElements(tags, {
+        min: 1,
+        max: 3,
+      });
 
       await this.prismaService.post.create({
         data: {
@@ -76,14 +94,17 @@ export class SeedsService {
           slug: faker.lorem.slug(),
           summary: faker.lorem.paragraph(),
           content: faker.lorem.paragraphs(3),
-          coverImageUrl: faker.image.urlPicsumPhotos({ width: 800, height: 600 }),
+          coverImageUrl: faker.image.urlPicsumPhotos({
+            width: 800,
+            height: 600,
+          }),
           categoryId: category.id,
           status: faker.helpers.arrayElement(['DRAFT', 'PUBLISHED']),
           visibility: faker.helpers.arrayElement(['PUBLIC', 'PRIVATE']),
           authorId: author.id,
           publishedAt: faker.date.past(),
           tags: {
-            connect: selectedTags.map(tag => ({ id: tag.id })),
+            connect: selectedTags.map((tag) => ({ id: tag.id })),
           },
         },
       });
@@ -92,8 +113,6 @@ export class SeedsService {
     console.log('✅ Datos de prueba generados correctamente');
   }
 }
-
-
 
 /* import { Injectable } from '@nestjs/common';
 import { faker } from '@faker-js/faker';

@@ -12,7 +12,6 @@ export class CategoryService {
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
-
     const newCategory = await this.categoryRepository.create({
       name: createCategoryDto.name,
       description: createCategoryDto.description ?? undefined,
@@ -30,7 +29,6 @@ export class CategoryService {
 
     return category;
   }
-
 
   async findAll(): Promise<Category[]> {
     return this.categoryRepository.findAll();
