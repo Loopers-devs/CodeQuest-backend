@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -22,14 +23,22 @@ export class PostFavoritesService {
     const { userId, postId } = createPostFavoriteDto;
 
     try {
+      if (await this.postFavoritesRepository.isFavorite(userId, postId)) {
+        throw new ConflictException('the post is already a favorite');
+      }
+
       await this.postFavoritesRepository.addFavorite(userId, postId);
     } catch {
       throw new InternalServerErrorException('Error adding favorite');
     }
   }
 
-  remove(createPostFavoriteDto: { userId: number; postId: string }) {
+  async remove(createPostFavoriteDto: { userId: number; postId: string }) {
     const { userId, postId } = createPostFavoriteDto;
+
+    if (await this.postFavoritesRepository.isFavorite(userId, postId)) {
+      throw new ConflictException('the post is not a favorite');
+    }
 
     return this.postFavoritesRepository.removeFavorite(userId, postId);
   }
