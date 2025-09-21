@@ -21,7 +21,12 @@ export type PostSortBy =
 export type SortOrder = 'asc' | 'desc';
 
 // Allowed `include` keys for posts (used by query params to include relations)
-export const PostIncludes = ['author', 'comments', 'category'] as const;
+export const PostIncludes = [
+  'author',
+  'comments',
+  'category',
+  'favorites',
+] as const;
 export type PostInclude = (typeof PostIncludes)[number];
 
 export interface PostListParams {
@@ -45,6 +50,8 @@ export interface PostListParams {
 
   paginate?: number; // página (alternativa a cursor, menos eficiente)
   includes?: PostInclude[]; // relaciones a incluir (author, comments, category)
+
+  userId?: number; // ID del usuario autenticado (para saber si es favorito)
 }
 export class TagDto {
   id: string;
@@ -110,6 +117,8 @@ export interface IPostRepository {
   findById(id: string): Promise<DbPost | null>;
   findBySlug(slug: string): Promise<DbPost | null>;
   existsBySlug(slug: string): Promise<boolean>;
+  /** Batch: obtiene varios posts por sus IDs */
+  findManyByIds(ids: string[]): Promise<DbPost[]>;
 
   // Listado / feed (búsqueda, filtros, orden, paginación por cursor)
   list(params?: PostListParams): Promise<PagedResult<DbPost>>;

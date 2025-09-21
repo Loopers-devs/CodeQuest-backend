@@ -31,25 +31,25 @@ enum PostStatus {
 }
 
 enum PostVisibility {
-  PUBLIC     
-  MEMBERS    
-  PRIVATE    
+  PUBLIC
+  MEMBERS
+  PRIVATE
 }
 
 model User {
-  id                Int          @id @default(autoincrement())
-  email             String       @unique
-  fullName          String      
-  nickname          String?      @unique
-  roles             Role[]       @default([USER])
-  image             String?
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  fullName String
+  nickname String? @unique
+  roles    Role[]  @default([USER])
+  image    String?
 
-  emailVerified            DateTime?
-  emailVerificationToken   String?
-  emailVerificationExpiry  DateTime?
-  
-  passwordResetToken        String?
-  passwordResetTokenExpiry  DateTime?
+  emailVerified           DateTime?
+  emailVerificationToken  String?
+  emailVerificationExpiry DateTime?
+
+  passwordResetToken       String?
+  passwordResetTokenExpiry DateTime?
 
   password          String?
   providerType      ProviderType
@@ -58,48 +58,51 @@ model User {
   updatedAt         DateTime     @updatedAt
   deletedAt         DateTime?
 
-  posts             Post[]
+  // Relaciones
+  posts        Post[]
+  postFavorites PostFavorite[]
 
   @@index([providerType])
   @@index([providerAccountId])
 }
 
-
-
 model Post {
-  id             String          @id @default(uuid())
+  id String @id @default(uuid())
 
-  slug           String          @unique
-  title          String
-  summary        String?
-  content        String          // markdown o html
+  slug    String  @unique
+  title   String
+  summary String?
+  content String // markdown o html
 
-  // tags
   tags      Tags[]    @relation("PostTags")
+  category String? // si luego quieres entidad Category, se cambia a relación
 
   // Publicación
-  status         PostStatus      @default(DRAFT)
-  visibility     PostVisibility  @default(PUBLIC)
-  coverImageUrl  String?
-  publishedAt    DateTime?
+  status        PostStatus     @default(DRAFT)
+  visibility    PostVisibility @default(PUBLIC)
+  coverImageUrl String?
+  publishedAt   DateTime?
 
   //categoria
   categoryId     String
   category       Category       @relation(fields: [categoryId], references: [id])
 
   // Métricas
-  views          Int             @default(0)
-  commentsCount  Int             @default(0)
-  reactionsCount Int             @default(0)
+  views          Int @default(0)
+  commentsCount  Int @default(0)
+  reactionsCount Int @default(0)
 
   // Auditoría
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  deletedAt      DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Autor
-  authorId       Int
-  author         User            @relation(fields: [authorId], references: [id])
+  authorId     Int
+  author       User           @relation(fields: [authorId], references: [id])
+
+  // Relaciones derivadas
+  favoritedBy PostFavorite[]
 
   // Índices útiles para listados y buscador
   @@index([status, visibility, publishedAt])
@@ -127,4 +130,16 @@ model Tags {
   deletedAt    DateTime?
 
   posts       Post[]   @relation("PostTags")
+
+model PostFavorite {
+  userId    Int
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+  @@index([postId, userId])
+  @@index([userId, createdAt])
 }

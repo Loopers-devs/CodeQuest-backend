@@ -7,6 +7,7 @@ import { CategoryModule } from './category/category.module';
 import { TagsModule } from './tags/tags.module';
 
 @Module({
+  exports: [PostsService],
   controllers: [PostsController],
   imports: [PrismaModule, CategoryModule, TagsModule],
   providers: [
