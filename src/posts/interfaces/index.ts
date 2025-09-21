@@ -118,14 +118,14 @@ export interface IPostRepository {
   findBySlug(slug: string): Promise<DbPost | null>;
   existsBySlug(slug: string): Promise<boolean>;
   /** Batch: obtiene varios posts por sus IDs */
-  findManyByIds(ids: string[]): Promise<DbPost[]>;
+  findManyByIds(ids: string[]): Promise<PostEntity[]>;
 
   // Listado / feed (búsqueda, filtros, orden, paginación por cursor)
-  list(params?: PostListParams): Promise<PagedResult<DbPost>>;
+  list(params?: PostListParams): Promise<PagedResult<PostEntity>>;
   listByAuthor(
     authorId: number,
     params?: Omit<PostListParams, 'authorId'>,
-  ): Promise<PagedResult<DbPost>>;
+  ): Promise<PagedResult<PostEntity>>;
   listRelated(id: string, limit?: number): Promise<DbPost[]>; // por tags/category
 
   // Escrituras

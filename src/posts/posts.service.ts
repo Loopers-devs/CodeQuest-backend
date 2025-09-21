@@ -9,7 +9,6 @@ import {
   type IPostRepository,
   DbPost,
   PostListParams,
-  PagedResult,
   CreatePostData,
   UpdatePostData,
   PostResponseDto,
@@ -17,6 +16,7 @@ import {
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostStatus, PostVisibility } from 'src/interfaces';
+import { Post } from '@prisma/client';
 
 @Injectable()
 export class PostsService {
@@ -25,7 +25,7 @@ export class PostsService {
     private readonly postRepo: IPostRepository,
   ) {}
 
-  async findManyByIds(ids: string[]): Promise<DbPost[]> {
+  async findManyByIds(ids: string[]): Promise<Post[]> {
     return this.postRepo.findManyByIds(ids);
   }
   // ============== Creación ==============
@@ -155,7 +155,7 @@ export class PostsService {
   }
 
   // ============== Feed / Listados ==============
-  async list(params?: PostListParams): Promise<PagedResult<PostResponseDto>> {
+  async list(params?: PostListParams) {
     // Atajo común: mostrar solo públicos publicados en el feed
     const merged: PostListParams = {
       publishedOnly: true,
@@ -163,38 +163,14 @@ export class PostsService {
       order: 'desc',
       ...params,
     };
-    const result = await this.postRepo.list(merged);
-
-    return {
-      ...result,
-      items: result.items.map((post) => ({
-        ...post,
-        category: post.category?.name ?? null,
-        tags: post.tags.map((tag) => ({
-          id: tag.id,
-          name: tag.name,
-        })),
-      })),
-    };
+    return await this.postRepo.list(merged);
   }
 
   async listByAuthor(
     authorId: number,
     params?: Omit<PostListParams, 'authorId'>,
-  ): Promise<PagedResult<PostResponseDto>> {
-    const result = await this.postRepo.listByAuthor(authorId, params);
-
-    return {
-      ...result,
-      items: result.items.map((post) => ({
-        ...post,
-        category: post.category?.name ?? null,
-        tags: post.tags.map((tag) => ({
-          id: tag.id,
-          name: tag.name,
-        })),
-      })),
-    };
+  ) {
+    return await this.postRepo.listByAuthor(authorId, params);
   }
 
   async listRelated(id: string, limit = 3): Promise<PostResponseDto[]> {

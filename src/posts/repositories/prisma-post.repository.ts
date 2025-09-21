@@ -12,6 +12,7 @@ import {
   SortOrder,
 } from 'src/posts/interfaces';
 import { PostStatus, PostVisibility } from 'src/interfaces';
+import { PostEntity } from '../entities/post.entity';
 
 @Injectable()
 export class PrismaPostRepository implements IPostRepository {
@@ -45,7 +46,7 @@ export class PrismaPostRepository implements IPostRepository {
     return !!existSlug;
   }
 
-  async list(params?: PostListParams): Promise<PagedResult<DbPost>> {
+  async list(params?: PostListParams): Promise<PagedResult<PostEntity>> {
     const take = params?.take ?? 10;
     const where = this.buildWhere(params);
     const orderBy = this.buildOrderBy(params?.sortBy, params?.order);
@@ -99,10 +100,7 @@ export class PrismaPostRepository implements IPostRepository {
     const nextPage = currentPage < totalPages ? currentPage + 1 : null;
 
     return {
-      items: items.map((item) => ({
-        ...item,
-        isFavorited: item.favoritedBy ? item.favoritedBy.length > 0 : false,
-      })),
+      items: items.map((item) => this.mapPrismaPostToEntity(item)),
       nextCursor,
       metadata: {
         totalPages,
@@ -116,7 +114,7 @@ export class PrismaPostRepository implements IPostRepository {
   async listByAuthor(
     authorId: number,
     params?: Omit<PostListParams, 'authorId'>,
-  ): Promise<PagedResult<DbPost>> {
+  ) {
     return this.list({ ...(params ?? {}), authorId });
   }
 
@@ -303,7 +301,7 @@ export class PrismaPostRepository implements IPostRepository {
     });
   }
 
-  async findManyByIds(ids: string[]): Promise<DbPost[]> {
+  async findManyByIds(ids: string[]) {
     if (!ids.length) return [];
     const posts = await this.prisma.post.findMany({
       where: { id: { in: ids } },
@@ -311,13 +309,12 @@ export class PrismaPostRepository implements IPostRepository {
         author: {
           select: { id: true, fullName: true, nickname: true, image: true },
         },
+        category: true,
+        tags: true,
       },
     });
 
-    return posts.map((item) => ({
-      ...item,
-      isFavorited: true,
-    }));
+    return posts.map((item) => this.mapPrismaPostToEntity(item));
   }
 
   // =============== Helpers privados ===============
@@ -381,5 +378,15 @@ export class PrismaPostRepository implements IPostRepository {
     const sb = sortBy ?? 'publishedAt';
     const ord = order ?? 'desc';
     return { [sb]: ord } as Prisma.PostOrderByWithRelationInput;
+  }
+
+  private mapPrismaPostToEntity(post: DbPost): PostEntity {
+    return {
+      ...post,
+      status: post.status as PostStatus,
+      visibility: post.visibility as PostVisibility,
+      tags: post.tags.map((t) => t.name),
+      category: post.category ? post.category.name : null,
+    };
   }
 }

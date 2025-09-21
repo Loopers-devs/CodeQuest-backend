@@ -59,7 +59,7 @@ model User {
   deletedAt         DateTime?
 
   // Relaciones
-  posts        Post[]
+  posts         Post[]
   postFavorites PostFavorite[]
 
   @@index([providerType])
@@ -74,8 +74,7 @@ model Post {
   summary String?
   content String // markdown o html
 
-  tags      Tags[]    @relation("PostTags")
-  category String? // si luego quieres entidad Category, se cambia a relación
+  tags Tags[] @relation("PostTags")
 
   // Publicación
   status        PostStatus     @default(DRAFT)
@@ -84,8 +83,8 @@ model Post {
   publishedAt   DateTime?
 
   //categoria
-  categoryId     String
-  category       Category       @relation(fields: [categoryId], references: [id])
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
 
   // Métricas
   views          Int @default(0)
@@ -98,8 +97,8 @@ model Post {
   deletedAt DateTime?
 
   // Autor
-  authorId     Int
-  author       User           @relation(fields: [authorId], references: [id])
+  authorId Int
+  author   User @relation(fields: [authorId], references: [id])
 
   // Relaciones derivadas
   favoritedBy PostFavorite[]
@@ -111,25 +110,26 @@ model Post {
 }
 
 model Category {
-  id           String          @id @default(uuid())
-  name         String         @unique
-  description  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
-  posts        Post[]
+  posts Post[]
 }
 
 model Tags {
-  id           String          @id @default(uuid())
-  name         String         @unique
-  description  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  deletedAt    DateTime?
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
-  posts       Post[]   @relation("PostTags")
+  posts Post[] @relation("PostTags")
+}
 
 model PostFavorite {
   userId    Int

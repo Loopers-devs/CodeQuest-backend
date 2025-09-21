@@ -148,12 +148,8 @@ export class PostEntity {
   @IsUUID()
   categoryId: string;
 
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value.split(',').map((tag: string) => tag.trim());
-    }
-    return value;
-  })
   @IsArray()
   tags: string[]; // ["#javascript", "#nestjs"]
+
+  category: string | null; // "Tecnología"
 }
