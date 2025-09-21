@@ -5,6 +5,7 @@ import { PrismaPostRepository } from './repositories/prisma-post.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
+  exports: [PostsService],
   controllers: [PostsController],
   imports: [PrismaModule],
   providers: [

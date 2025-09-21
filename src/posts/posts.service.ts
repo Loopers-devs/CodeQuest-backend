@@ -1,4 +1,3 @@
-// src/posts/posts.service.ts
 import {
   ConflictException,
   ForbiddenException,
@@ -25,6 +24,9 @@ export class PostsService {
     private readonly postRepo: IPostRepository,
   ) {}
 
+  async findManyByIds(ids: string[]): Promise<DbPost[]> {
+    return this.postRepo.findManyByIds(ids);
+  }
   // ============== Creación ==============
   async create(dto: CreatePostDto, authorId: number): Promise<DbPost> {
     // (Opcional) si el slug lo manda el cliente, valida unicidad
