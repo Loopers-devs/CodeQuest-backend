@@ -1,8 +1,14 @@
 import { Prisma } from '@prisma/client';
-import { PostStatus, PostVisibility } from 'src/interfaces';
+import { PostStatus, PostVisibility } from '@prisma/client';
+
 import { PostEntity } from '../entities/post.entity';
 
-export type DbPost = Prisma.PostGetPayload<{}>;
+export type DbPost = Prisma.PostGetPayload<{
+  include: {
+    category: true;
+    tags: true;
+  };
+}>;
 
 // -------- Tipos de apoyo ----------
 export type PostSortBy =
@@ -47,19 +53,35 @@ export interface PostListParams {
 
   userId?: number; // ID del usuario autenticado (para saber si es favorito)
 }
+export class TagDto {
+  id: string;
+  name: string;
+}
+export interface PostResponseDto {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  content: string;
+  coverImageUrl: string | null;
+  status: PostStatus;
+  visibility: PostVisibility;
+  publishedAt: Date | null;
+  views: number;
+  commentsCount: number;
+  reactionsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date | null;
+  authorId: number;
+  category: string | null;
+  tags: TagDto[];
+}
 
-export type CreatePostData = Pick<
-  PostEntity,
-  | 'title'
-  | 'slug'
-  | 'summary'
-  | 'content'
-  | 'category'
-  | 'tags'
-  | 'status'
-  | 'visibility'
-  | 'coverImageUrl'
-> & { authorId: number };
+export type CreatePostData = Omit<PostEntity, 'tags'> & {
+  tags: string[];
+  authorId: number;
+};
 
 export type UpdatePostData = Partial<
   Pick<
@@ -68,7 +90,7 @@ export type UpdatePostData = Partial<
     | 'slug'
     | 'summary'
     | 'content'
-    | 'category'
+    | 'categoryId'
     | 'tags'
     | 'status'
     | 'visibility'
@@ -96,14 +118,14 @@ export interface IPostRepository {
   findBySlug(slug: string): Promise<DbPost | null>;
   existsBySlug(slug: string): Promise<boolean>;
   /** Batch: obtiene varios posts por sus IDs */
-  findManyByIds(ids: string[]): Promise<DbPost[]>;
+  findManyByIds(ids: string[]): Promise<PostEntity[]>;
 
   // Listado / feed (búsqueda, filtros, orden, paginación por cursor)
-  list(params?: PostListParams): Promise<PagedResult<DbPost>>;
+  list(params?: PostListParams): Promise<PagedResult<PostEntity>>;
   listByAuthor(
     authorId: number,
     params?: Omit<PostListParams, 'authorId'>,
-  ): Promise<PagedResult<DbPost>>;
+  ): Promise<PagedResult<PostEntity>>;
   listRelated(id: string, limit?: number): Promise<DbPost[]>; // por tags/category
 
   // Escrituras
