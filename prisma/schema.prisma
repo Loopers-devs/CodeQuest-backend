@@ -61,6 +61,7 @@ model User {
   // Relaciones
   posts         Post[]
   postFavorites PostFavorite[]
+  likedBy PostLike[]
 
   @@index([providerType])
   @@index([providerAccountId])
@@ -102,6 +103,7 @@ model Post {
 
   // Relaciones derivadas
   favoritedBy PostFavorite[]
+  likedBy PostLike[]
 
   // Índices útiles para listados y buscador
   @@index([status, visibility, publishedAt])
@@ -132,6 +134,19 @@ model Tags {
 }
 
 model PostFavorite {
+  userId    Int
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@id([userId, postId])
+  @@index([postId, userId])
+  @@index([userId, createdAt])
+}
+
+model PostLike {
   userId    Int
   postId    String
   createdAt DateTime @default(now())

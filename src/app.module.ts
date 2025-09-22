@@ -8,6 +8,7 @@ import { PostsModule } from './posts/posts.module';
 import { SeedsModule } from './seeds/seeds.module';
 import { PostFavoritesModule } from './post-favorites/post-favorites.module';
 import { PostFavoriteModule } from './post-favorite/post-favorite.module';
+import { LikePostModule } from './like-post/like-post.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PostFavoriteModule } from './post-favorite/post-favorite.module';
     SeedsModule,
     PostFavoritesModule,
     PostFavoriteModule,
+    LikePostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
