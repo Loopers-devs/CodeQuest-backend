@@ -59,19 +59,39 @@ export class PrismaLikePostRepository implements ILikePostRepository {
   }
 
   async create(data: Pick<LikePost, 'userId' | 'postId'>): Promise<LikePost> {
-    const created = await this.prismaService.postLike.create({
-      data,
-    });
+    const [created] = await this.prismaService.$transaction([
+      this.prismaService.postLike.create({
+        data,
+      }),
+      this.prismaService.post.update({
+        where: { id: data.postId },
+        data: {
+          reactionsCount: {
+            increment: 1,
+          },
+        },
+      }),
+    ]);
 
     return this.toEntity(created);
   }
 
   async delete(userId: number, postId: string): Promise<void> {
-    await this.prismaService.postLike.delete({
-      where: {
-        userId_postId: { userId, postId },
-      },
-    });
+    await this.prismaService.$transaction([
+      this.prismaService.postLike.delete({
+        where: {
+          userId_postId: { userId, postId },
+        },
+      }),
+      this.prismaService.post.update({
+        where: { id: postId },
+        data: {
+          reactionsCount: {
+            decrement: 1,
+          },
+        },
+      }),
+    ]);
   }
 
   toEntity(like: DbLikePost): LikePost {

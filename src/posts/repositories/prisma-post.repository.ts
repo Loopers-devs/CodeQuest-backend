@@ -80,6 +80,7 @@ export class PrismaPostRepository implements IPostRepository {
               image: true,
             },
           },
+          likedBy: { select: { userId: true }, take: 1 },
         }),
         category: true,
         tags: true,
@@ -167,7 +168,7 @@ export class PrismaPostRepository implements IPostRepository {
             where: { name: tag },
             create: {
               name: tag,
-              description: `tag generado automaticamente por ${tag}`,
+              description: `tag generado automáticamente por ${tag}`,
             },
           })),
         },
