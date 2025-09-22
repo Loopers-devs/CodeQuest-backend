@@ -5,7 +5,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { PrismaLikePostRepository } from './repositories/prisma-like.repository';
 
 @Module({
-  imports:[PrismaModule],
+  imports: [PrismaModule],
   controllers: [LikePostController],
   providers: [
     {

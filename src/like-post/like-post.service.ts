@@ -4,7 +4,7 @@ import {
   CreateLikePostDto,
   LikeListQueryDto,
 } from './dto/create-like-post.dto';
-import type{ ILikePostRepository } from './interfaces';
+import type { ILikePostRepository } from './interfaces';
 
 @Injectable()
 export class LikePostService {
@@ -20,7 +20,9 @@ export class LikePostService {
     );
 
     if (existing) {
-      throw new BadRequestException('Este post ya tiene un like de este usuario');
+      throw new BadRequestException(
+        'Este post ya tiene un like de este usuario',
+      );
     }
 
     return this.likePostRepository.create({
@@ -34,7 +36,10 @@ export class LikePostService {
   }
 
   async delete(userId: number, postId: string): Promise<void> {
-    const like = await this.likePostRepository.findByUserAndPost(userId, postId);
+    const like = await this.likePostRepository.findByUserAndPost(
+      userId,
+      postId,
+    );
 
     if (!like) {
       throw new BadRequestException('El like no existe');

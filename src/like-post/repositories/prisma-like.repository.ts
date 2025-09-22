@@ -9,7 +9,10 @@ import { DbLikePost, ILikePostRepository } from '../interfaces';
 export class PrismaLikePostRepository implements ILikePostRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findByUserAndPost(userId: number, postId: string): Promise<LikePost | null> {
+  async findByUserAndPost(
+    userId: number,
+    postId: string,
+  ): Promise<LikePost | null> {
     const like = await this.prismaService.postLike.findUnique({
       where: {
         userId_postId: { userId, postId },

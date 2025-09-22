@@ -10,12 +10,7 @@ import {
 import { LikeListQueryDto } from './dto/create-like-post.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { LikePostService } from './like-post.service';
 
 @ApiTags('Post Likes')
