@@ -1,4 +1,11 @@
-import { IsInt, IsOptional, IsString, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -54,4 +61,8 @@ export class CommentListQueryDto {
   @IsOptional()
   @IsString()
   parentId?: string;
+
+  @IsUUID()
+  @ApiProperty({ example: 'uuid-del-post', description: 'ID del post' })
+  postId: string;
 }

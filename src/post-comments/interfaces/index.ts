@@ -4,10 +4,7 @@ import { PostCommentEntity } from '../entities/post-comment.entity';
 
 export interface ICommentRepository {
   findById(id: string): Promise<PostCommentEntity | null>;
-  findAllByPost(
-    postId: string,
-    query: CommentListQueryDto,
-  ): Promise<{
+  findAllByPost(query: CommentListQueryDto): Promise<{
     items: PostCommentEntity[];
     page: number;
     pageSize: number;
@@ -29,4 +26,11 @@ export interface ICommentRepository {
   delete(id: string): Promise<void>;
 }
 
-export type DbComment = Prisma.PostCommentGetPayload<object>;
+export type DbComment = Prisma.PostCommentGetPayload<object> & {
+  author: {
+    id: number;
+    nickname: string | null;
+    fullName: string;
+    image: string | null;
+  };
+};

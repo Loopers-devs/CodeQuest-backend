@@ -40,9 +40,9 @@ export class PostCommentsService {
     return comment;
   }
 
-  async listByPost(postId: string, query: CommentListQueryDto) {
+  async listByPost(query: CommentListQueryDto) {
     // parentId undefined => top-level; parentId set => hijos de ese comentario
-    return this.postCommentRepository.findAllByPost(postId, query);
+    return this.postCommentRepository.findAllByPost(query);
   }
 
   async update(id: string, authorId: number, dto: UpdatePostCommentDto) {

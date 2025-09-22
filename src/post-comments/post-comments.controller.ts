@@ -34,12 +34,8 @@ export class PostCommentsController {
 
   // Lista top-level o hijos (si pasas parentId)
   @Get()
-  listByPost(
-    @Query('postId') postId: string,
-    @Query() query: CommentListQueryDto,
-  ) {
-    if (!postId) throw new Error('postId requerido');
-    return this.postCommentsService.listByPost(postId, query);
+  listByPost(@Query() query: CommentListQueryDto) {
+    return this.postCommentsService.listByPost(query);
   }
 
   @Patch(':id')

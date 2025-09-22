@@ -32,4 +32,11 @@ export class PostCommentEntity {
   @IsDate()
   @Type(() => Date)
   deletedAt?: Date | null;
+
+  author: {
+    id: number;
+    nickname: string | null;
+    fullName: string;
+    image: string | null;
+  };
 }

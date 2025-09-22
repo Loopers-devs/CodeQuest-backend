@@ -11,13 +11,16 @@ export class PrismaCommentRepository implements ICommentRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findById(id: string): Promise<PostCommentEntity | null> {
-    const row = await this.prisma.postComment.findUnique({ where: { id } });
+    const row = await this.prisma.postComment.findUnique({
+      where: { id },
+      include: { author: true },
+    });
     return row ? this.toEntity(row) : null;
   }
 
-  async findAllByPost(postId: string, dto: CommentListQueryDto) {
+  async findAllByPost(dto: CommentListQueryDto) {
     const where: Prisma.PostCommentWhereInput = {
-      postId,
+      postId: dto.postId,
       deletedAt: null,
       AND: [
         dto.parentId === undefined
@@ -37,6 +40,11 @@ export class PrismaCommentRepository implements ICommentRepository {
         skip,
         take: dto.pageSize,
         orderBy: { createdAt: 'desc' },
+        include: {
+          author: {
+            select: { id: true, nickname: true, fullName: true, image: true },
+          },
+        },
       }),
       this.prisma.postComment.count({ where }),
     ]);
@@ -67,6 +75,11 @@ export class PrismaCommentRepository implements ICommentRepository {
         content: data.content,
         parentId: data.parentId,
       },
+      include: {
+        author: {
+          select: { id: true, nickname: true, fullName: true, image: true },
+        },
+      },
     });
 
     return this.toEntity(result);
@@ -81,6 +94,11 @@ export class PrismaCommentRepository implements ICommentRepository {
       data: {
         content: data.content,
         updatedAt: new Date(),
+      },
+      include: {
+        author: {
+          select: { id: true, nickname: true, fullName: true, image: true },
+        },
       },
     });
 
@@ -103,6 +121,12 @@ export class PrismaCommentRepository implements ICommentRepository {
       id: c.id,
       postId: c.postId,
       authorId: c.authorId,
+      author: {
+        id: c.author.id,
+        nickname: c.author.nickname,
+        fullName: c.author.fullName,
+        image: c.author.image,
+      },
       content: c.content,
       parentId: c.parentId ?? undefined,
       createdAt: c.createdAt,
