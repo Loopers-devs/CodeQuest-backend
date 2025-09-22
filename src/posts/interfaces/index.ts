@@ -77,11 +77,19 @@ export interface PostResponseDto {
   tags: TagDto[];
 }
 
-export type CreatePostData = Omit<PostEntity, 'tags' | 'id' | 'views' | 'commentsCount' | 'reactionsCount' | 'createdAt' | 'updatedAt'> & {
+export type CreatePostData = Omit<
+  PostEntity,
+  | 'tags'
+  | 'id'
+  | 'views'
+  | 'commentsCount'
+  | 'reactionsCount'
+  | 'createdAt'
+  | 'updatedAt'
+> & {
   tags: string[];
-  authorId: number;  // Este será proporcionado desde el contexto de autenticación
+  authorId: number; // Este será proporcionado desde el contexto de autenticación
 };
-
 
 export type UpdatePostData = Partial<
   Pick<

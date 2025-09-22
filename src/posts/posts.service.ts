@@ -37,37 +37,38 @@ export class PostsService {
 
     const data: CreatePostData = {
       ...dto,
-      authorId:userId, // NUNCA confiar en el authorId del cliente
+      authorId: userId, // NUNCA confiar en el authorId del cliente
     };
 
     // Si creas como publicado y no tienes publishedAt, el repo puede setearlo
     // o lo puedes hacer aquí si lo prefieres.
-    const createData=await this.postRepo.create(data);
-    
+    const createData = await this.postRepo.create(data);
 
     return {
       id: createData.id,
-      title:createData.title,
-      slug:createData.slug,
-      summary:createData.summary,
-      content:createData.content,
-      coverImageUrl:createData.coverImageUrl,
-      status:createData.status,
-      visibility:createData.visibility,
-      publishedAt:createData.publishedAt,
-      views:createData.views,
-      commentsCount:createData.commentsCount,
-      reactionsCount:createData.reactionsCount,
-      createdAt:createData.createdAt,
-      updatedAt:createData.updatedAt,
-      deletedAt:createData.deletedAt,
-      authorId:createData.authorId,
-      category:createData.category.name,
-      tags:[...createData.tags.map(tag=>{
-        return {
-          name:tag.name
-        }
-      })]
+      title: createData.title,
+      slug: createData.slug,
+      summary: createData.summary,
+      content: createData.content,
+      coverImageUrl: createData.coverImageUrl,
+      status: createData.status,
+      visibility: createData.visibility,
+      publishedAt: createData.publishedAt,
+      views: createData.views,
+      commentsCount: createData.commentsCount,
+      reactionsCount: createData.reactionsCount,
+      createdAt: createData.createdAt,
+      updatedAt: createData.updatedAt,
+      deletedAt: createData.deletedAt,
+      authorId: createData.authorId,
+      category: createData.category.name,
+      tags: [
+        ...createData.tags.map((tag) => {
+          return {
+            name: tag.name,
+          };
+        }),
+      ],
     };
   }
 
@@ -96,30 +97,31 @@ export class PostsService {
     const data: UpdatePostData = { ...dto };
     const createData = await this.postRepo.update(id, data);
 
-    
     return {
       id: createData.id,
-      title:createData.title,
-      slug:createData.slug,
-      summary:createData.summary,
-      content:createData.content,
-      coverImageUrl:createData.coverImageUrl,
-      status:createData.status,
-      visibility:createData.visibility,
-      publishedAt:createData.publishedAt,
-      views:createData.views,
-      commentsCount:createData.commentsCount,
-      reactionsCount:createData.reactionsCount,
-      createdAt:createData.createdAt,
-      updatedAt:createData.updatedAt,
-      deletedAt:createData.deletedAt,
-      authorId:createData.authorId,
-      category:createData.category.name,
-      tags:[...createData.tags.map(tag=>{
-        return {
-          name:tag.name
-        }
-      })]
+      title: createData.title,
+      slug: createData.slug,
+      summary: createData.summary,
+      content: createData.content,
+      coverImageUrl: createData.coverImageUrl,
+      status: createData.status,
+      visibility: createData.visibility,
+      publishedAt: createData.publishedAt,
+      views: createData.views,
+      commentsCount: createData.commentsCount,
+      reactionsCount: createData.reactionsCount,
+      createdAt: createData.createdAt,
+      updatedAt: createData.updatedAt,
+      deletedAt: createData.deletedAt,
+      authorId: createData.authorId,
+      category: createData.category.name,
+      tags: [
+        ...createData.tags.map((tag) => {
+          return {
+            name: tag.name,
+          };
+        }),
+      ],
     };
   }
 

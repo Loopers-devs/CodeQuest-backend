@@ -38,8 +38,8 @@ export class PostsController {
   @ApiResponse({ status: 201, description: 'Post Creado Correctamente' })
   @ApiResponse({ status: 400, description: 'Error al crear el Post' })
   async create(@Body() dto: CreatePostDto, @GetUser('userId') userId: number) {
-    console.log({dto:dto,userid:userId});
-    
+    console.log({ dto: dto, userid: userId });
+
     return this.postsService.create(dto, userId);
   }
 
