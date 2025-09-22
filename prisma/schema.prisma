@@ -61,7 +61,8 @@ model User {
   // Relaciones
   posts         Post[]
   postFavorites PostFavorite[]
-  likedBy PostLike[]
+  likedBy       PostLike[]
+  PostComment   PostComment[]
 
   @@index([providerType])
   @@index([providerAccountId])
@@ -103,7 +104,8 @@ model Post {
 
   // Relaciones derivadas
   favoritedBy PostFavorite[]
-  likedBy PostLike[]
+  likedBy     PostLike[]
+  PostComment PostComment[]
 
   // Índices útiles para listados y buscador
   @@index([status, visibility, publishedAt])
@@ -157,4 +159,23 @@ model PostLike {
   @@id([userId, postId])
   @@index([postId, userId])
   @@index([userId, createdAt])
+}
+
+model PostComment {
+  id       String        @id @default(uuid())
+  postId   String
+  post     Post          @relation(fields: [postId], references: [id])
+  authorId Int
+  author   User          @relation(fields: [authorId], references: [id])
+  content  String
+  parentId String?
+  parent   PostComment?  @relation("CommentThread", fields: [parentId], references: [id])
+  children PostComment[] @relation("CommentThread")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([postId, parentId, createdAt])
+  @@index([authorId, createdAt])
 }

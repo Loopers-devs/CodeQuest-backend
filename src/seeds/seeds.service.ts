@@ -1,22 +1,24 @@
 import { Injectable } from '@nestjs/common';
-const { faker } = require('@faker-js/faker');
-
+import { faker } from '@faker-js/faker';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcryptjs from 'bcryptjs';
-import { ProviderType } from '@prisma/client';
+import { Post, PostComment, ProviderType } from '@prisma/client';
 
 @Injectable()
 export class SeedsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async generateRandomData() {
-    // 🔄 Limpiar datos existentes
-    await this.prismaService.post.deleteMany({});
-    await this.prismaService.tags.deleteMany({});
-    await this.prismaService.category.deleteMany({});
-    await this.prismaService.user.deleteMany({});
+    // 🔄 Limpiar datos existentes (orden seguro por FKs)
+    await this.prisma.postLike.deleteMany({});
+    await this.prisma.postFavorite.deleteMany({});
+    await this.prisma.postComment.deleteMany({});
+    await this.prisma.post.deleteMany({});
+    await this.prisma.tags.deleteMany({});
+    await this.prisma.category.deleteMany({});
+    await this.prisma.user.deleteMany({});
 
-    // 👤 Crear usuarios
+    // 👤 Usuarios
     const users = Array.from({ length: 10 }).map(() => ({
       fullName: faker.person.fullName(),
       password: bcryptjs.hashSync('password123', 10),
@@ -35,10 +37,10 @@ export class SeedsService {
       providerType: ProviderType.CREDENTIALS,
     };
 
-    await this.prismaService.user.createMany({ data: [...users, defaultUser] });
-    const allUsers = await this.prismaService.user.findMany();
+    await this.prisma.user.createMany({ data: [...users, defaultUser] });
+    const allUsers = await this.prisma.user.findMany();
 
-    // 🗂️ Crear categorías
+    // 🗂️ Categorías
     const categoryNames = [
       'Technology',
       'Health',
@@ -49,7 +51,7 @@ export class SeedsService {
     ];
     const categories = await Promise.all(
       categoryNames.map((name) =>
-        this.prismaService.category.create({
+        this.prisma.category.create({
           data: {
             name,
             description: `Categoría sobre ${name.toLowerCase()}`,
@@ -58,7 +60,7 @@ export class SeedsService {
       ),
     );
 
-    // 🏷️ Crear tags
+    // 🏷️ Tags
     const tagNames = [
       'tech',
       'life',
@@ -70,7 +72,7 @@ export class SeedsService {
     ];
     const tags = await Promise.all(
       tagNames.map((name) =>
-        this.prismaService.tags.create({
+        this.prisma.tags.create({
           data: {
             name,
             description: `Etiqueta para ${name}`,
@@ -79,7 +81,8 @@ export class SeedsService {
       ),
     );
 
-    // 📝 Crear posts con relaciones
+    // 📝 Posts
+    const posts: Post[] = [];
     for (let i = 0; i < 50; i++) {
       const author = faker.helpers.arrayElement(allUsers);
       const category = faker.helpers.arrayElement(categories);
@@ -88,10 +91,13 @@ export class SeedsService {
         max: 3,
       });
 
-      await this.prismaService.post.create({
+      const post = await this.prisma.post.create({
         data: {
           title: faker.lorem.sentence(),
-          slug: faker.lorem.slug(),
+          slug:
+            faker.lorem.slug() +
+            '-' +
+            faker.string.alphanumeric(6).toLowerCase(),
           summary: faker.lorem.paragraph(),
           content: faker.lorem.paragraphs(3),
           coverImageUrl: faker.image.urlPicsumPhotos({
@@ -103,90 +109,73 @@ export class SeedsService {
           visibility: faker.helpers.arrayElement(['PUBLIC', 'PRIVATE']),
           authorId: author.id,
           publishedAt: faker.date.past(),
-          tags: {
-            connect: selectedTags.map((tag) => ({ id: tag.id })),
-          },
+          tags: { connect: selectedTags.map((t) => ({ id: t.id })) },
         },
       });
+
+      posts.push(post);
     }
 
-    console.log('✅ Datos de prueba generados correctamente');
+    // 💬 PostComments (2 niveles: top-level + replies)
+    const MAX_TOP_LEVEL = { min: 2, max: 6 };
+    const MAX_REPLIES_PER_TOP = { min: 0, max: 5 };
+
+    for (const post of posts) {
+      const topLevelCount = faker.number.int(MAX_TOP_LEVEL);
+
+      const topLevelComments: PostComment[] = [];
+      for (let i = 0; i < topLevelCount; i++) {
+        const author = faker.helpers.arrayElement(allUsers);
+        const content = faker.lorem.sentences(
+          faker.number.int({ min: 1, max: 3 }),
+        );
+        const created = await this.prisma.$transaction(async (tx) => {
+          const c = await tx.postComment.create({
+            data: {
+              postId: post.id,
+              authorId: author.id,
+              content,
+              parentId: null,
+              createdAt: faker.date.recent({ days: 60 }),
+            },
+          });
+          await tx.post.update({
+            where: { id: post.id },
+            data: { commentsCount: { increment: 1 } },
+          });
+          return c;
+        });
+        topLevelComments.push(created);
+      }
+
+      for (const parent of topLevelComments) {
+        const repliesCount = faker.number.int(MAX_REPLIES_PER_TOP);
+        for (let r = 0; r < repliesCount; r++) {
+          const author = faker.helpers.arrayElement(allUsers);
+          const content = faker.lorem.sentences(
+            faker.number.int({ min: 1, max: 2 }),
+          );
+          await this.prisma.$transaction(async (tx) => {
+            await tx.postComment.create({
+              data: {
+                postId: post.id,
+                authorId: author.id,
+                content,
+                parentId: parent.id,
+                createdAt: faker.date.recent({ days: 45 }),
+              },
+            });
+            await tx.post.update({
+              where: { id: post.id },
+              data: { commentsCount: { increment: 1 } },
+            });
+          });
+        }
+      }
+    }
+
+    console.log(
+      '✅ Datos de prueba generados correctamente con postComments y respuestas',
+    );
   }
 }
-
-/* import { Injectable } from '@nestjs/common';
-import { faker } from '@faker-js/faker';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import * as bcryptjs from 'bcryptjs';
-
-@Injectable()
-export class SeedsService {
-  constructor(private readonly prismaService: PrismaService) {}
-
-  async generateRandomData() {
-    //Delete existing data
-    await this.prismaService.post.deleteMany({});
-    await this.prismaService.user.deleteMany({});
-    await this.prismaService.category.deleteMany({});
-    await this.prismaService.tags.deleteMany({});
-
-    // Users
-    const users: Prisma.UserCreateInput[] = Array.from({ length: 10 }).map(
-      () => ({
-        fullName: faker.person.fullName(),
-        password: bcryptjs.hashSync('password123', 10),
-        nickname: faker.internet.username(),
-        email: faker.internet.email(),
-        image: faker.image.avatar(),
-        providerType: 'CREDENTIALS',
-      }),
-    );
-
-    const defaultUser: Prisma.UserCreateInput = {
-      fullName: 'Admin User',
-      password: bcryptjs.hashSync('admin123', 10),
-      nickname: 'admin',
-      email: 'admin@example.com',
-      image: faker.image.avatar(),
-      providerType: 'CREDENTIALS',
-    };
-
-    await this.prismaService.user.createMany({ data: [...users, defaultUser] });
-
-    // Posts
-    const allUsers = await this.prismaService.user.findMany();
-
-    const posts: Prisma.PostCreateManyInput[] = Array.from({ length: 50 }).map(
-      () => ({
-        title: faker.lorem.sentence(),
-        slug: faker.lorem.slug(),
-        summary: faker.lorem.paragraph(),
-        content: faker.lorem.paragraphs(5),
-        coverImageUrl: faker.image.urlPicsumPhotos({
-          width: 800,
-          height: 600,
-          blur: 0,
-        }),
-        category: faker.helpers.arrayElement([
-          'Technology',
-          'Health',
-          'Travel',
-          'Food',
-          'Science',
-          'Art',
-        ]),
-        status: faker.helpers.arrayElement(['DRAFT', 'PUBLISHED']),
-        visibility: faker.helpers.arrayElement(['PUBLIC', 'PRIVATE']),
-        authorId: faker.helpers.arrayElement(allUsers).id,
-        tags: faker.helpers.arrayElements(
-          ['tech', 'life', 'travel', 'food', 'health', 'science', 'art'],
-          { min: 1, max: 3 },
-        ),
-        publishedAt: faker.date.past(),
-      }),
-    );
-
-    await this.prismaService.post.createMany({ data: posts });
-  }
-} */
