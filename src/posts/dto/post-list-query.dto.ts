@@ -12,6 +12,7 @@ import {
   IsDate,
   Min,
   IsIn,
+  IsUUID,
 } from 'class-validator';
 import { PostStatus, PostVisibility } from 'src/interfaces';
 
@@ -30,7 +31,7 @@ export class PostListQueryDto {
   authorId?: number;
 
   @IsOptional()
-  @IsString()
+  @IsUUID()
   category?: string | null;
 
   @IsOptional()
