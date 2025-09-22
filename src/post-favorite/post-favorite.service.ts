@@ -1,7 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import type { IPostFavoriteRepository } from './interfaces';
 import { PostFavorite } from './entities/post-favorite.entity';
-import { CreatePostFavoriteDto, PostFavoriteListQueryDto } from './dto/create-post-favorite.dto';
+import {
+  CreatePostFavoriteDto,
+  PostFavoriteListQueryDto,
+} from './dto/create-post-favorite.dto';
 
 @Injectable()
 export class PostFavoriteService {
@@ -17,7 +20,9 @@ export class PostFavoriteService {
     );
 
     if (existing) {
-      throw new BadRequestException('Este post ya está marcado como favorito por el usuario');
+      throw new BadRequestException(
+        'Este post ya está marcado como favorito por el usuario',
+      );
     }
 
     return this.postFavoriteRepository.create({
@@ -31,7 +36,10 @@ export class PostFavoriteService {
   }
 
   async delete(userId: number, postId: string): Promise<void> {
-    const favorite = await this.postFavoriteRepository.findByUserAndPost(userId, postId);
+    const favorite = await this.postFavoriteRepository.findByUserAndPost(
+      userId,
+      postId,
+    );
 
     if (!favorite) {
       throw new BadRequestException('El favorito no existe');
@@ -40,4 +48,3 @@ export class PostFavoriteService {
     await this.postFavoriteRepository.delete(userId, postId);
   }
 }
-

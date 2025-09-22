@@ -5,7 +5,7 @@ import { PrismaPostFavoriteRepository } from './repository/prisma-postFavorite.r
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports:[PrismaModule],
+  imports: [PrismaModule],
   controllers: [PostFavoriteController],
   providers: [
     {

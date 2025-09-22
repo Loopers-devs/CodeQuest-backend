@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { TagListQueryDto } from '../dto/create-tag.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-
 @Injectable()
 export class PrismaTagRepository implements ITagRepository {
   constructor(private readonly prismaService: PrismaService) {}
@@ -30,41 +29,39 @@ export class PrismaTagRepository implements ITagRepository {
     return this.toEntity(tag);
   }
 
-  async findAll(dto:TagListQueryDto) {
+  async findAll(dto: TagListQueryDto) {
+    const where: Prisma.TagsWhereInput = dto.search
+      ? {
+          OR: [
+            { name: { contains: dto.search, mode: 'insensitive' } },
+            { description: { contains: dto.search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
 
-    const where:Prisma.TagsWhereInput=dto.search ? {
-      OR:[
-        {name:{ contains: dto.search, mode:'insensitive'}},
-        {description:{ contains:dto.search, mode:'insensitive'}} 
-      ],
-    }:{};
-
-    const skip= (dto.page -1) * dto.pageSize;
+    const skip = (dto.page - 1) * dto.pageSize;
 
     const [rows, total] = await this.prismaService.$transaction([
       this.prismaService.tags.findMany({
         where,
         skip,
-        take:dto.pageSize,
-        orderBy:{ createdAt:'desc' }
+        take: dto.pageSize,
+        orderBy: { createdAt: 'desc' },
       }),
-      this.prismaService.tags.count({where}),
+      this.prismaService.tags.count({ where }),
     ]);
 
-    const totalPages=Math.ceil(total/dto.pageSize);
+    const totalPages = Math.ceil(total / dto.pageSize);
 
     return {
-      items: rows.map((r)=> this.toEntity(r)),
-      page:dto.page,
-      pageSize:dto.pageSize,
+      items: rows.map((r) => this.toEntity(r)),
+      page: dto.page,
+      pageSize: dto.pageSize,
       total,
       totalPages,
       hasNext: dto.page < totalPages,
       hasPrev: dto.page > 1,
-    }
-
-
-
+    };
 
     /* const tags = await this.prismaService.tags.findMany();
     return tags.map(this.toEntity); */

@@ -22,7 +22,7 @@ export class TagsController {
   }
 
   @Get()
-  findAll(@Query() query:TagListQueryDto ) {
+  findAll(@Query() query: TagListQueryDto) {
     return this.tagsService.findAll(query);
   }
 
