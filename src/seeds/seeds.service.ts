@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { faker } from '@faker-js/faker';
+/* import { faker } from '@faker-js/faker'; */
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcryptjs from 'bcryptjs';
 import { Post, PostComment, ProviderType } from '@prisma/client';
+
+async function getFaker() {
+  const { faker } = await import('@faker-js/faker');
+  return faker;
+}
 
 @Injectable()
 export class SeedsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async generateRandomData() {
+    const faker = await getFaker();
     // 🔄 Limpiar datos existentes (orden seguro por FKs)
     await this.prisma.postLike.deleteMany({});
     await this.prisma.postFavorite.deleteMany({});

@@ -54,7 +54,6 @@ export interface PostListParams {
   userId?: number; // ID del usuario autenticado (para saber si es favorito)
 }
 export class TagDto {
-  id: string;
   name: string;
 }
 export interface PostResponseDto {
@@ -78,10 +77,11 @@ export interface PostResponseDto {
   tags: TagDto[];
 }
 
-export type CreatePostData = Omit<PostEntity, 'tags'> & {
+export type CreatePostData = Omit<PostEntity, 'tags' | 'id' | 'views' | 'commentsCount' | 'reactionsCount' | 'createdAt' | 'updatedAt'> & {
   tags: string[];
-  authorId: number;
+  authorId: number;  // Este será proporcionado desde el contexto de autenticación
 };
+
 
 export type UpdatePostData = Partial<
   Pick<

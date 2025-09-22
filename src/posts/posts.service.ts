@@ -29,7 +29,7 @@ export class PostsService {
     return this.postRepo.findManyByIds(ids);
   }
   // ============== Creación ==============
-  async create(dto: CreatePostDto, authorId: number): Promise<DbPost> {
+  async create(dto: CreatePostDto, userId: number): Promise<PostResponseDto> {
     // (Opcional) si el slug lo manda el cliente, valida unicidad
     if (dto.slug && (await this.postRepo.existsBySlug(dto.slug))) {
       throw new ConflictException('El slug ya está en uso');
@@ -37,12 +37,38 @@ export class PostsService {
 
     const data: CreatePostData = {
       ...dto,
-      authorId, // NUNCA confiar en el authorId del cliente
+      authorId:userId, // NUNCA confiar en el authorId del cliente
     };
 
     // Si creas como publicado y no tienes publishedAt, el repo puede setearlo
     // o lo puedes hacer aquí si lo prefieres.
-    return this.postRepo.create(data);
+    const createData=await this.postRepo.create(data);
+    
+
+    return {
+      id: createData.id,
+      title:createData.title,
+      slug:createData.slug,
+      summary:createData.summary,
+      content:createData.content,
+      coverImageUrl:createData.coverImageUrl,
+      status:createData.status,
+      visibility:createData.visibility,
+      publishedAt:createData.publishedAt,
+      views:createData.views,
+      commentsCount:createData.commentsCount,
+      reactionsCount:createData.reactionsCount,
+      createdAt:createData.createdAt,
+      updatedAt:createData.updatedAt,
+      deletedAt:createData.deletedAt,
+      authorId:createData.authorId,
+      category:createData.category.name,
+      tags:[...createData.tags.map(tag=>{
+        return {
+          name:tag.name
+        }
+      })]
+    };
   }
 
   // ============== Actualización ==============
@@ -50,7 +76,7 @@ export class PostsService {
     id: string,
     dto: UpdatePostDto,
     currentUserId: number,
-  ): Promise<DbPost> {
+  ): Promise<PostResponseDto> {
     const existing = await this.postRepo.findById(id);
     if (!existing) throw new NotFoundException('Post no encontrado');
 
@@ -68,7 +94,33 @@ export class PostsService {
     }
 
     const data: UpdatePostData = { ...dto };
-    return this.postRepo.update(id, data);
+    const createData = await this.postRepo.update(id, data);
+
+    
+    return {
+      id: createData.id,
+      title:createData.title,
+      slug:createData.slug,
+      summary:createData.summary,
+      content:createData.content,
+      coverImageUrl:createData.coverImageUrl,
+      status:createData.status,
+      visibility:createData.visibility,
+      publishedAt:createData.publishedAt,
+      views:createData.views,
+      commentsCount:createData.commentsCount,
+      reactionsCount:createData.reactionsCount,
+      createdAt:createData.createdAt,
+      updatedAt:createData.updatedAt,
+      deletedAt:createData.deletedAt,
+      authorId:createData.authorId,
+      category:createData.category.name,
+      tags:[...createData.tags.map(tag=>{
+        return {
+          name:tag.name
+        }
+      })]
+    };
   }
 
   // ============== Publicación / Despublicación ==============
