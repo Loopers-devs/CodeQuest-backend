@@ -8,8 +8,8 @@ export class CreateTagDto extends PickType(Tag, [
   'description',
 ] as const) {}
 
-export class TagListQueryDto{
-  @Type(()=> Number) @IsInt() @Min(1) page=1;
-  @Type(()=> Number) @IsInt() @Min(1) pageSize=1;
-  @IsOptional() @IsString() search?:string;
+export class TagListQueryDto {
+  @Type(() => Number) @IsInt() @Min(1) page = 1;
+  @Type(() => Number) @IsInt() @Min(1) pageSize = 1;
+  @IsOptional() @IsString() search?: string;
 }

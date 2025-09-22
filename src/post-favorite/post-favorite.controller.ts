@@ -11,12 +11,7 @@ import { PostFavoriteService } from './post-favorite.service';
 import { PostFavoriteListQueryDto } from './dto/create-post-favorite.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Post Favorites')
 @Controller('post-favorites')

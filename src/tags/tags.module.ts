@@ -5,7 +5,7 @@ import { PrismaTagRepository } from './repositories/prisma-tag.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports:[PrismaModule],
+  imports: [PrismaModule],
   controllers: [TagsController],
   providers: [
     {

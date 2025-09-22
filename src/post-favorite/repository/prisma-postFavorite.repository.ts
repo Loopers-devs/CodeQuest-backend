@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PostFavorite } from '../entities/post-favorite.entity';
-import {  DbPostFavorite, IPostFavoriteRepository } from '../interfaces';
+import { DbPostFavorite, IPostFavoriteRepository } from '../interfaces';
 import { Prisma } from '@prisma/client';
 import { PostFavoriteListQueryDto } from '../dto/create-post-favorite.dto';
 
@@ -9,7 +9,10 @@ import { PostFavoriteListQueryDto } from '../dto/create-post-favorite.dto';
 export class PrismaPostFavoriteRepository implements IPostFavoriteRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findByUserAndPost(userId: number, postId: string): Promise<PostFavorite | null> {
+  async findByUserAndPost(
+    userId: number,
+    postId: string,
+  ): Promise<PostFavorite | null> {
     const favorite = await this.prismaService.postFavorite.findUnique({
       where: {
         userId_postId: { userId, postId },
@@ -55,7 +58,9 @@ export class PrismaPostFavoriteRepository implements IPostFavoriteRepository {
     };
   }
 
-  async create(data: Pick<PostFavorite, 'userId' | 'postId'>): Promise<PostFavorite> {
+  async create(
+    data: Pick<PostFavorite, 'userId' | 'postId'>,
+  ): Promise<PostFavorite> {
     const created = await this.prismaService.postFavorite.create({
       data,
     });

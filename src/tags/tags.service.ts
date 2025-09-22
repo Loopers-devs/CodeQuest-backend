@@ -36,7 +36,7 @@ export class TagsService {
     return tag;
   }
 
-  async findAll(query:TagListQueryDto) {
+  async findAll(query: TagListQueryDto) {
     return this.tagRepository.findAll(query);
   }
 
