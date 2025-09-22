@@ -29,6 +29,9 @@ export class PrismaCommentRepository implements ICommentRepository {
         dto.search
           ? { content: { contains: dto.search, mode: 'insensitive' } }
           : {},
+        {
+          deletedAt: null,
+        },
       ],
     };
 
@@ -44,8 +47,23 @@ export class PrismaCommentRepository implements ICommentRepository {
           author: {
             select: { id: true, nickname: true, fullName: true, image: true },
           },
+          children: {
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'asc' },
+            include: {
+              author: {
+                select: {
+                  id: true,
+                  nickname: true,
+                  fullName: true,
+                  image: true,
+                },
+              },
+            },
+          },
         },
       }),
+
       this.prisma.postComment.count({ where }),
     ]);
 
@@ -68,21 +86,28 @@ export class PrismaCommentRepository implements ICommentRepository {
     content: string;
     parentId?: string;
   }): Promise<PostCommentEntity> {
-    const result = await this.prisma.postComment.create({
-      data: {
-        postId: data.postId,
-        authorId: data.authorId,
-        content: data.content,
-        parentId: data.parentId,
-      },
-      include: {
-        author: {
-          select: { id: true, nickname: true, fullName: true, image: true },
+    const [comment] = await this.prisma.$transaction([
+      this.prisma.postComment.create({
+        data: {
+          postId: data.postId,
+          authorId: data.authorId,
+          content: data.content,
+          parentId: data.parentId,
         },
-      },
-    });
+        include: {
+          author: {
+            select: { id: true, nickname: true, fullName: true, image: true },
+          },
+        },
+      }),
 
-    return this.toEntity(result);
+      this.prisma.post.update({
+        where: { id: data.postId },
+        data: { commentsCount: { increment: 1 } },
+      }),
+    ]);
+
+    return this.toEntity(comment);
   }
 
   async update(
@@ -109,11 +134,16 @@ export class PrismaCommentRepository implements ICommentRepository {
     const comment = await this.prisma.postComment.findUnique({ where: { id } });
     if (!comment) return;
 
-    // Soft delete
-    await this.prisma.postComment.update({
-      where: { id },
-      data: { deletedAt: new Date() },
-    });
+    await this.prisma.$transaction([
+      this.prisma.postComment.update({
+        where: { id },
+        data: { deletedAt: new Date() },
+      }),
+      this.prisma.post.update({
+        where: { id: comment.postId },
+        data: { commentsCount: { decrement: 1 } },
+      }),
+    ]);
   }
 
   private toEntity(c: DbComment): PostCommentEntity {
@@ -132,6 +162,7 @@ export class PrismaCommentRepository implements ICommentRepository {
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
       deletedAt: c.deletedAt ?? null,
+      children: c.children?.map((child) => this.toEntity(child)),
     };
   }
 }

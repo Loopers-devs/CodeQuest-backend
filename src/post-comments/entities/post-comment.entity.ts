@@ -39,4 +39,6 @@ export class PostCommentEntity {
     fullName: string;
     image: string | null;
   };
+
+  children?: PostCommentEntity[];
 }

@@ -33,4 +33,5 @@ export type DbComment = Prisma.PostCommentGetPayload<object> & {
     fullName: string;
     image: string | null;
   };
+  children?: DbComment[];
 };
