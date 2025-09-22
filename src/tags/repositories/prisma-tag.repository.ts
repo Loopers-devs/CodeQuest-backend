@@ -1,7 +1,12 @@
 import { Tag } from '../entities/tag.entity';
 import { DbTag, ITagRepository } from '../interfaces';
-import { PrismaService } from '../../../../src/prisma/prisma.service';
+import { Prisma } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { TagListQueryDto } from '../dto/create-tag.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
+
+@Injectable()
 export class PrismaTagRepository implements ITagRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -25,9 +30,44 @@ export class PrismaTagRepository implements ITagRepository {
     return this.toEntity(tag);
   }
 
-  async findAll(): Promise<Tag[]> {
-    const tags = await this.prismaService.tags.findMany();
-    return tags.map(this.toEntity);
+  async findAll(dto:TagListQueryDto) {
+
+    const where:Prisma.TagsWhereInput=dto.search ? {
+      OR:[
+        {name:{ contains: dto.search, mode:'insensitive'}},
+        {description:{ contains:dto.search, mode:'insensitive'}} 
+      ],
+    }:{};
+
+    const skip= (dto.page -1) * dto.pageSize;
+
+    const [rows, total] = await this.prismaService.$transaction([
+      this.prismaService.tags.findMany({
+        where,
+        skip,
+        take:dto.pageSize,
+        orderBy:{ createdAt:'desc' }
+      }),
+      this.prismaService.tags.count({where}),
+    ]);
+
+    const totalPages=Math.ceil(total/dto.pageSize);
+
+    return {
+      items: rows.map((r)=> this.toEntity(r)),
+      page:dto.page,
+      pageSize:dto.pageSize,
+      total,
+      totalPages,
+      hasNext: dto.page < totalPages,
+      hasPrev: dto.page > 1,
+    }
+
+
+
+
+    /* const tags = await this.prismaService.tags.findMany();
+    return tags.map(this.toEntity); */
   }
 
   async create(data: Pick<Tag, 'name' | 'description'>): Promise<Tag> {

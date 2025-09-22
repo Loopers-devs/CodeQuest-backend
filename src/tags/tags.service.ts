@@ -1,5 +1,5 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateTagDto } from './dto/create-tag.dto';
+import { CreateTagDto, TagListQueryDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import type { ITagRepository } from './interfaces';
 import { Tag } from './entities/tag.entity';
@@ -36,8 +36,8 @@ export class TagsService {
     return tag;
   }
 
-  async findAll(): Promise<Tag[]> {
-    return this.tagRepository.findAll();
+  async findAll(query:TagListQueryDto) {
+    return this.tagRepository.findAll(query);
   }
 
   async update(id: string, updateDto: UpdateTagDto): Promise<Tag> {

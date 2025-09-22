@@ -7,6 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PostsModule } from './posts/posts.module';
 import { SeedsModule } from './seeds/seeds.module';
 import { PostFavoritesModule } from './post-favorites/post-favorites.module';
+import { PostFavoriteModule } from './post-favorite/post-favorite.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PostFavoritesModule } from './post-favorites/post-favorites.module';
     PostsModule,
     SeedsModule,
     PostFavoritesModule,
+    PostFavoriteModule,
   ],
   controllers: [AppController],
   providers: [AppService],

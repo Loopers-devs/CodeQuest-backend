@@ -6,9 +6,10 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { TagsService } from './tags.service';
-import { CreateTagDto } from './dto/create-tag.dto';
+import { CreateTagDto, TagListQueryDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 
 @Controller('tags')
@@ -21,8 +22,8 @@ export class TagsController {
   }
 
   @Get()
-  findAll() {
-    return this.tagsService.findAll();
+  findAll(@Query() query:TagListQueryDto ) {
+    return this.tagsService.findAll(query);
   }
 
   @Get(':id')
