@@ -57,35 +57,6 @@ export class PostEntity {
   @MinLength(10)
   content: string;
 
-  @ApiProperty({
-    example: 'Programación',
-    type: String,
-    description: 'Categoría del post',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string' ? value.trim() : value,
-  )
-  category: string | null;
-
-  @ApiProperty({
-    example: ['react', 'javascript'],
-    type: [String],
-    description: 'Etiquetas del post',
-    required: false,
-  })
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  @Transform(({ value }: { value: unknown }) =>
-    Array.isArray(value)
-      ? [...new Set(value.map((t: string) => t.trim().toLowerCase()))]
-      : value,
-  )
-  tags: string[];
-
   @ApiProperty({ enum: PostStatus, description: 'Estado del post' })
   @IsEnum(PostStatus)
   status: PostStatus;
@@ -173,4 +144,12 @@ export class PostEntity {
   @ApiProperty({ example: 1, type: Number, description: 'ID del autor' })
   @IsInt()
   authorId: number;
+
+  @IsUUID()
+  categoryId: string;
+
+  @IsArray()
+  tags: string[]; // ["#javascript", "#nestjs"]
+
+  category: string | null; // "Tecnología"
 }
