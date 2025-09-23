@@ -7,7 +7,6 @@ import { PrismaModule } from './prisma/prisma.module';
 import { PostsModule } from './posts/posts.module';
 import { SeedsModule } from './seeds/seeds.module';
 import { PostFavoritesModule } from './post-favorites/post-favorites.module';
-import { PostFavoriteModule } from './post-favorite/post-favorite.module';
 import { LikePostModule } from './like-post/like-post.module';
 import { PostCommentsModule } from './post-comments/post-comments.module';
 
@@ -19,7 +18,6 @@ import { PostCommentsModule } from './post-comments/post-comments.module';
     PostsModule,
     SeedsModule,
     PostFavoritesModule,
-    PostFavoriteModule,
     LikePostModule,
     PostCommentsModule,
   ],

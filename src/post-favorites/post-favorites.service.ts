@@ -36,7 +36,12 @@ export class PostFavoritesService {
   async remove(createPostFavoriteDto: { userId: number; postId: string }) {
     const { userId, postId } = createPostFavoriteDto;
 
-    if (await this.postFavoritesRepository.isFavorite(userId, postId)) {
+    const isFavorite = await this.postFavoritesRepository.isFavorite(
+      userId,
+      postId,
+    );
+
+    if (!isFavorite) {
       throw new ConflictException('the post is not a favorite');
     }
 

@@ -81,6 +81,7 @@ export class PrismaPostRepository implements IPostRepository {
             },
           },
           likedBy: { select: { userId: true }, take: 1 },
+          favoritedBy: { select: { userId: true }, take: 1 },
         }),
         category: true,
         tags: true,
@@ -310,6 +311,8 @@ export class PrismaPostRepository implements IPostRepository {
         author: {
           select: { id: true, fullName: true, nickname: true, image: true },
         },
+        favoritedBy: { select: { userId: true }, take: 1 },
+        likedBy: { select: { userId: true }, take: 1 },
         category: true,
         tags: true,
       },
